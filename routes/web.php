@@ -30,4 +30,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('users.index');
 });
 
+Route::middleware(['auth', 'can:access-users'])->group(function () {
+    Route::get('/users', UsersController::class)->name('users.index');
+});
+
+
 require __DIR__.'/auth.php';
