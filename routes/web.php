@@ -8,7 +8,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -30,9 +30,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('users.index');
 });
 
-Route::middleware(['auth', 'can:access-users'])->group(function () {
-    Route::get('/users', UsersController::class)->name('users.index');
-});
+// Route::middleware(['auth', 'can:access-users'])->group(function () {
+//     Route::get('/users', UsersController::class)->name('users.index');
+// });
 
 
 require __DIR__.'/auth.php';
