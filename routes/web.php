@@ -6,6 +6,7 @@ use App\Http\Controllers\ForcePasswordController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\TagsController;
+use App\Http\Controllers\ArticlesController;
 
 Route::redirect('/', '/login');
 
@@ -21,7 +22,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['password.changed'])->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
 
-        Route::get('/articles', fn () => Inertia::render('Articles/Index'))->name('articles.index');
+        Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
+        Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
+        Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
+        Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
+
 
         Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
         Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
