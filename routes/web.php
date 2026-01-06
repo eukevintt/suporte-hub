@@ -23,6 +23,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/categories', fn () => Inertia::render('Categories/Index'))->name('categories.index');
         Route::get('/tags', fn () => Inertia::render('Tags/Index'))->name('tags.index');
 
+        Route::get('/profile', fn () => Inertia::render('Profile/Edit'))->name('profile.edit');
+
         Route::middleware(['can:access-users'])->group(function () {
             Route::get('/users', [UsersController::class, 'index'])->name('users.index');
             Route::post('/users', [UsersController::class, 'store'])->name('users.store');
