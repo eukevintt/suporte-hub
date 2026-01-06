@@ -26,7 +26,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
         Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
         Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
-
+        Route::put('/articles/{article}/publish', [ArticlesController::class, 'publish'])->name('articles.publish');
+        Route::put('/articles/{article}/unpublish', [ArticlesController::class, 'unpublish'])->name('articles.unpublish');
 
         Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
         Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');

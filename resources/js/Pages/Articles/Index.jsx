@@ -1,5 +1,5 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 
 export default function Index({ articles, categories, tags }) {
@@ -67,6 +67,14 @@ export default function Index({ articles, categories, tags }) {
     const destroy = (id) => {
         if (!confirm("Excluir este artigo?")) return;
         form.delete(route("articles.destroy", id), { preserveScroll: true });
+    };
+
+    // Chat 06: alternar status draft <-> published
+    const toggleStatus = (article) => {
+        const isDraft = article.status === "draft";
+        const routeName = isDraft ? "articles.publish" : "articles.unpublish";
+
+        router.put(route(routeName, article.id), {}, { preserveScroll: true });
     };
 
     return (
@@ -195,9 +203,23 @@ export default function Index({ articles, categories, tags }) {
                                             </td>
                                             <td className="py-2">{a.category?.name ?? "-"}</td>
                                             <td className="py-2">{(a.tags ?? []).length ? a.tags.map((t) => t.name).join(", ") : "-"}</td>
-                                            <td className="py-2">{a.status}</td>
+
+                                            <td className="py-2">
+                                                <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium border">
+                                                    {a.status}
+                                                </span>
+                                            </td>
+
                                             <td className="py-2 text-right">
                                                 <div className="flex justify-end gap-3">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded border px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+                                                        onClick={() => toggleStatus(a)}
+                                                    >
+                                                        {a.status === "draft" ? "Publicar" : "Voltar para draft"}
+                                                    </button>
+
                                                     <button type="button" className="text-sm underline" onClick={() => startEdit(a)}>
                                                         Editar
                                                     </button>

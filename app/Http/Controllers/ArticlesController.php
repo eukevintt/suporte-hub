@@ -111,4 +111,22 @@ class ArticlesController extends Controller
 
         return $slug;
     }
+
+    public function publish(Article $article): RedirectResponse
+    {
+        $article->update([
+            'status' => 'published',
+        ]);
+
+        return redirect()->route('articles.index');
+    }
+
+    public function unpublish(Article $article): RedirectResponse
+    {
+        $article->update([
+            'status' => 'draft',
+        ]);
+
+        return redirect()->route('articles.index');
+    }
 }
