@@ -34,5 +34,11 @@ Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
 //     Route::get('/users', UsersController::class)->name('users.index');
 // });
 
+Route::get('/force-password-change', [PasswordController::class, 'edit'])
+    ->name('password.force.form');
+
+Route::post('/force-password-change', [PasswordController::class, 'update'])
+    ->name('password.force.update');
+
 
 require __DIR__.'/auth.php';
