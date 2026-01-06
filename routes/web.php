@@ -1,44 +1,29 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ForcePasswordController;
 
-Route::get('/', function () {
-    return redirect()->route('login');
+Route::redirect('/', '/login');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['password.force.only'])->group(function () {
+        Route::get('/force-password-change', [ForcePasswordController::class, 'edit'])
+            ->name('password.force.form');
+
+        Route::post('/force-password-change', [ForcePasswordController::class, 'update'])
+            ->name('password.force.update');
+    });
+
+    Route::middleware(['password.changed'])->group(function () {
+        Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
+
+        Route::get('/articles', fn () => Inertia::render('Articles/Index'))->name('articles.index');
+        Route::get('/categories', fn () => Inertia::render('Categories/Index'))->name('categories.index');
+        Route::get('/tags', fn () => Inertia::render('Tags/Index'))->name('tags.index');
+
+        Route::get('/users', fn () => Inertia::render('Users/Index'))->middleware('can:access-users')->name('users.index');
+    });
 });
 
-Route::middleware(['auth', 'verified', 'password.changed'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-
-    Route::get('/articles', function () {
-        return Inertia::render('Articles/Index');
-    })->name('articles.index');
-
-    Route::get('/categories', function () {
-        return Inertia::render('Categories/Index');
-    })->name('categories.index');
-
-    Route::get('/tags', function () {
-        return Inertia::render('Tags/Index');
-    })->name('tags.index');
-
-    Route::get('/users', function () {
-        return Inertia::render('Users/Index');
-    })->name('users.index');
-});
-
-// Route::middleware(['auth', 'can:access-users'])->group(function () {
-//     Route::get('/users', UsersController::class)->name('users.index');
-// });
-
-Route::get('/force-password-change', [PasswordController::class, 'edit'])
-    ->name('password.force.form');
-
-Route::post('/force-password-change', [PasswordController::class, 'update'])
-    ->name('password.force.update');
-
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
