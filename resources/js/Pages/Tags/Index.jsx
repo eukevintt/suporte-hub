@@ -3,19 +3,29 @@ import { Head, useForm } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 
 export default function Index({ auth, tags }) {
+
     const createForm = useForm({ name: "" });
+    const editForm = useForm({ name: "" });
     const [editingId, setEditingId] = useState(null);
 
-    const editForms = useMemo(() => {
-        const map = new Map();
-        (tags ?? []).forEach((t) => {
-            map.set(t.id, useForm({ name: t.name }));
-        });
-        return map;
-    }, [tags]);
+    const editingTags = useMemo(() => {
+        if (!editingId) return null;
+        return (tags ?? []).find((t) => t.id === editingId) ?? null;
+    }, [editingId, tags]);
 
-    const startEdit = (id) => setEditingId(id);
-    const cancelEdit = () => setEditingId(null);
+    const startEdit = (id) => {
+        const c = (tags ?? []).find((x) => x.id === id);
+        if (!c) return;
+        setEditingId(id);
+        editForm.setData({ name: c.name ?? "" });
+        editForm.clearErrors();
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        editForm.reset("name");
+        editForm.clearErrors();
+    };
 
     const submitCreate = (e) => {
         e.preventDefault();
@@ -27,12 +37,13 @@ export default function Index({ auth, tags }) {
 
     const submitUpdate = (e, id) => {
         e.preventDefault();
-        const form = editForms.get(id);
-        form.put(route("tags.update", id), {
+        editForm.put(route("tags.update", id), {
             preserveScroll: true,
-            onSuccess: () => setEditingId(null),
+            onSuccess: () => cancelEdit(),
         });
     };
+
+
 
     const destroy = (id) => {
         if (!confirm("Excluir tag?")) return;
@@ -89,7 +100,6 @@ export default function Index({ auth, tags }) {
 
                                 <tbody>
                                     {(tags ?? []).map((t) => {
-                                        const form = editForms.get(t.id);
                                         const isEditing = editingId === t.id;
 
                                         return (
@@ -101,18 +111,18 @@ export default function Index({ auth, tags }) {
                                                         <form onSubmit={(e) => submitUpdate(e, t.id)} className="flex gap-2">
                                                             <div className="flex-1">
                                                                 <input
-                                                                    value={form.data.name}
-                                                                    onChange={(e) => form.setData("name", e.target.value)}
+                                                                    value={editForm.data.name}
+                                                                    onChange={(e) => editForm.setData("name", e.target.value)}
                                                                     className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                                                 />
-                                                                {form.errors.name && (
-                                                                    <div className="mt-2 text-sm text-red-500">{form.errors.name}</div>
+                                                                {editForm.errors.name && (
+                                                                    <div className="mt-2 text-sm text-red-500">{editForm.errors.name}</div>
                                                                 )}
                                                             </div>
 
                                                             <button
                                                                 type="submit"
-                                                                disabled={form.processing}
+                                                                disabled={editForm.processing}
                                                                 className="rounded-md bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
                                                             >
                                                                 Salvar

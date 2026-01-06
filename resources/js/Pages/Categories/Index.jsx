@@ -4,18 +4,28 @@ import { useMemo, useState } from "react";
 
 export default function Index({ auth, categories }) {
     const createForm = useForm({ name: "" });
+    const editForm = useForm({ name: "" });
     const [editingId, setEditingId] = useState(null);
 
-    const editForms = useMemo(() => {
-        const map = new Map();
-        (categories ?? []).forEach((c) => {
-            map.set(c.id, useForm({ name: c.name }));
-        });
-        return map;
-    }, [categories]);
+    const editingCategory = useMemo(() => {
+        if (!editingId) return null;
+        return (categories ?? []).find((c) => c.id === editingId) ?? null;
+    }, [editingId, categories]);
 
-    const startEdit = (id) => setEditingId(id);
-    const cancelEdit = () => setEditingId(null);
+    const startEdit = (id) => {
+        const c = (categories ?? []).find((x) => x.id === id);
+        if (!c) return;
+        setEditingId(id);
+        editForm.setData({ name: c.name ?? "" });
+        editForm.clearErrors();
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        editForm.reset("name");
+        editForm.clearErrors();
+    };
+
 
     const submitCreate = (e) => {
         e.preventDefault();
@@ -27,12 +37,12 @@ export default function Index({ auth, categories }) {
 
     const submitUpdate = (e, id) => {
         e.preventDefault();
-        const form = editForms.get(id);
-        form.put(route("categories.update", id), {
+        editForm.put(route("categories.update", id), {
             preserveScroll: true,
-            onSuccess: () => setEditingId(null),
+            onSuccess: () => cancelEdit(),
         });
     };
+
 
     const destroy = (id) => {
         if (!confirm("Excluir categoria?")) return;
@@ -89,7 +99,6 @@ export default function Index({ auth, categories }) {
 
                                 <tbody>
                                     {(categories ?? []).map((c) => {
-                                        const form = editForms.get(c.id);
                                         const isEditing = editingId === c.id;
 
                                         return (
@@ -101,18 +110,18 @@ export default function Index({ auth, categories }) {
                                                         <form onSubmit={(e) => submitUpdate(e, c.id)} className="flex gap-2">
                                                             <div className="flex-1">
                                                                 <input
-                                                                    value={form.data.name}
-                                                                    onChange={(e) => form.setData("name", e.target.value)}
+                                                                    value={editForm.data.name}
+                                                                    onChange={(e) => editForm.setData("name", e.target.value)}
                                                                     className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                                                 />
-                                                                {form.errors.name && (
-                                                                    <div className="mt-2 text-sm text-red-500">{form.errors.name}</div>
+                                                                {editForm.errors.name && (
+                                                                    <div className="mt-2 text-sm text-red-500">{editForm.errors.name}</div>
                                                                 )}
                                                             </div>
 
                                                             <button
                                                                 type="submit"
-                                                                disabled={form.processing}
+                                                                disabled={editForm.processing}
                                                                 className="rounded-md bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
                                                             >
                                                                 Salvar
