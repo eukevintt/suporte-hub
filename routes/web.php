@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ForcePasswordController;
+use App\Http\Controllers\UsersController;
 
 Route::redirect('/', '/login');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::middleware(['password.force.only'])->group(function () {
         Route::get('/force-password-change', [ForcePasswordController::class, 'edit'])
             ->name('password.force.form');
@@ -22,7 +23,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/categories', fn () => Inertia::render('Categories/Index'))->name('categories.index');
         Route::get('/tags', fn () => Inertia::render('Tags/Index'))->name('tags.index');
 
-        Route::get('/users', fn () => Inertia::render('Users/Index'))->middleware('can:access-users')->name('users.index');
+        Route::middleware(['can:access-users'])->group(function () {
+            Route::get('/users', [UsersController::class, 'index'])->name('users.index');
+            Route::post('/users', [UsersController::class, 'store'])->name('users.store');
+            Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
+            Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
+        });
     });
 });
 
