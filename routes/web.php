@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ForcePasswordController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\TagsController;
 
 Route::redirect('/', '/login');
 
@@ -20,8 +22,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
 
         Route::get('/articles', fn () => Inertia::render('Articles/Index'))->name('articles.index');
-        Route::get('/categories', fn () => Inertia::render('Categories/Index'))->name('categories.index');
-        Route::get('/tags', fn () => Inertia::render('Tags/Index'))->name('tags.index');
+
+        Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('/tags', [TagsController::class, 'index'])->name('tags.index');
+        Route::post('/tags', [TagsController::class, 'store'])->name('tags.store');
+        Route::put('/tags/{tag}', [TagsController::class, 'update'])->name('tags.update');
+        Route::delete('/tags/{tag}', [TagsController::class, 'destroy'])->name('tags.destroy');
 
         Route::get('/profile', fn () => Inertia::render('Profile/Edit'))->name('profile.edit');
 
@@ -34,16 +44,5 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 });
-
-Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
-Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
-Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
-Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
-
-Route::get('/tags', [TagsController::class, 'index'])->name('tags.index');
-Route::post('/tags', [TagsController::class, 'store'])->name('tags.store');
-Route::put('/tags/{tag}', [TagsController::class, 'update'])->name('tags.update');
-Route::delete('/tags/{tag}', [TagsController::class, 'destroy'])->name('tags.destroy');
-
 
 require __DIR__ . '/auth.php';
