@@ -1,9 +1,14 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, useForm, router } from "@inertiajs/react";
+import { Head, useForm, router, usePage } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 
 export default function Index({ articles, categories, tags }) {
     const [editingId, setEditingId] = useState(null);
+
+    // Chat 07 (Passo 2): filtro por status via query string (?status=draft|published)
+    const { url } = usePage();
+    const params = new URLSearchParams(url.split("?")[1]);
+    const currentStatus = params.get("status") ?? "";
 
     const editingArticle = useMemo(() => {
         if (!editingId) return null;
@@ -181,7 +186,27 @@ export default function Index({ articles, categories, tags }) {
                     </div>
 
                     <div className="bg-white p-6 shadow sm:rounded-lg">
-                        <h3 className="text-lg font-semibold">Listagem</h3>
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Listagem</h3>
+
+                            <div>
+                                <select
+                                    className="border rounded px-3 py-2 text-sm"
+                                    value={currentStatus}
+                                    onChange={(e) => {
+                                        const status = e.target.value;
+
+                                        router.get(route("articles.index"), status ? { status } : {}, {
+                                            preserveScroll: true,
+                                        });
+                                    }}
+                                >
+                                    <option value="">Todos</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div className="mt-4 overflow-x-auto">
                             <table className="w-full text-left text-sm">

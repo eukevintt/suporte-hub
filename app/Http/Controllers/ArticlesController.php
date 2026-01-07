@@ -14,22 +14,29 @@ use Inertia\Response;
 class ArticlesController extends Controller
 {
     public function index(): Response
-    {
+{
+        $query = Article::query()
+            ->with(['category:id,name', 'tags:id,name'])
+            ->latest();
+
+        $status = request('status');
+
+        if (in_array($status, ['draft', 'published'], true)) {
+            $query->where('status', $status);
+        }
+
         return Inertia::render('Articles/Index', [
-            'articles' => Article::query()
-                ->with(['category:id,name', 'tags:id,name'])
-                ->latest()
-                ->get([
-                    'id',
-                    'title',
-                    'slug',
-                    'excerpt',
-                    'content',
-                    'status',
-                    'category_id',
-                    'created_at',
-                    'updated_at',
-                ]),
+            'articles' => $query->get([
+                'id',
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'status',
+                'category_id',
+                'created_at',
+                'updated_at',
+            ]),
             'categories' => Category::query()
                 ->orderBy('name')
                 ->get(['id', 'name']),
