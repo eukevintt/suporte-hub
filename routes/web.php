@@ -31,8 +31,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
         Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
         Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
-        Route::put('/articles/{article}/publish', [ArticlesController::class, 'publish'])->name('articles.publish');
-        Route::put('/articles/{article}/unpublish', [ArticlesController::class, 'unpublish'])->name('articles.unpublish');
+
+        Route::middleware(['can:review,article'])->group(function () {
+            Route::put('/articles/{article}/approve', [ArticlesController::class, 'approve'])->name('articles.approve');
+            Route::put('/articles/{article}/reject', [ArticlesController::class, 'reject'])->name('articles.reject');
+        });
+
 
         Route::get('/search', [SearchController::class, 'index'])->name('search.index');
         Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
