@@ -55,7 +55,7 @@ class ArticlesController extends Controller
         ]);
     }
 
-        public function create(): Response
+    public function create(): Response
     {
         return Inertia::render('Articles/Create', [
             'categories' => Category::query()
@@ -72,10 +72,30 @@ class ArticlesController extends Controller
         $article->load(['category:id,name', 'tags:id,name']);
 
         return Inertia::render('Articles/Show', [
-            'article' => $article,
+            'article' => $article->only([
+                'id',
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'status',
+                'category_id',
+                'created_at',
+                'updated_at',
+            ]) + [
+                'category' => $article->category,
+                'tags' => $article->tags,
+            ],
+
+            'categories' => Category::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+
+            'tagsList' => Tag::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
-
 
     public function store(Request $request): RedirectResponse
     {
@@ -109,8 +129,9 @@ class ArticlesController extends Controller
 
         $article->tags()->sync($data['tag_ids'] ?? []);
 
-        return redirect()->route('articles.index');
+        return redirect()->route('articles.show', $article->slug);
     }
+
 
     public function destroy(Article $article): RedirectResponse
     {
