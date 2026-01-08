@@ -55,6 +55,28 @@ class ArticlesController extends Controller
         ]);
     }
 
+        public function create(): Response
+    {
+        return Inertia::render('Articles/Create', [
+            'categories' => Category::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'tags' => Tag::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ]);
+    }
+
+    public function show(Article $article): Response
+    {
+        $article->load(['category:id,name', 'tags:id,name']);
+
+        return Inertia::render('Articles/Show', [
+            'article' => $article,
+        ]);
+    }
+
+
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
