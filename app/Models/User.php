@@ -44,5 +44,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'must_change_password' => 'boolean',
+        'permissions' => 'array',
     ];
+
+    public function hasPermission(string $permission): bool
+    {
+        $perms = $this->permissions ?? [];
+        return in_array($permission, $perms, true);
+    }
 }

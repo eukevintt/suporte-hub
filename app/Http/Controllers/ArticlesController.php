@@ -13,20 +13,47 @@ use Inertia\Response;
 
 class ArticlesController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $query = Article::query()
+        $user = $request->user();
+        $isReviewer = $user?->can('review', Article::class) ?? false;
+
+        $search = $request->string('search')->toString();
+        $status = $request->string('status')->toString();
+
+        $baseQuery = fn () => Article::query()
             ->with(['category:id,name', 'tags:id,name'])
             ->latest();
 
-        $status = request('status');
-        $search = request('search');
-
-        if (in_array($status, ['draft', 'published'], true)) {
-            $query->where('status', $status);
+        $pendingReview = collect();
+        if ($isReviewer) {
+            $pendingReview = $baseQuery()
+                ->where('status', 'pending_review')
+                ->limit(5)
+                ->get([
+                    'id',
+                    'title',
+                    'slug',
+                    'excerpt',
+                    'content',
+                    'status',
+                    'category_id',
+                    'created_at',
+                    'updated_at',
+                ]);
         }
 
-        if ($search) {
+        $query = $baseQuery();
+
+        if (!$isReviewer) {
+            $query->where('status', 'published');
+        } else {
+            if (in_array($status, ['pending_review', 'published'], true)) {
+                $query->where('status', $status);
+            }
+        }
+
+        if ($search !== '') {
             $query->where('title', 'like', '%' . $search . '%');
         }
 
@@ -42,6 +69,10 @@ class ArticlesController extends Controller
                 'created_at',
                 'updated_at',
             ]),
+
+            'pendingReview' => $pendingReview,
+            'canReview' => $isReviewer,
+
             'categories' => Category::query()
                 ->orderBy('name')
                 ->get(['id', 'name']),
@@ -49,8 +80,8 @@ class ArticlesController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name']),
             'filters' => [
-                'status' => $status,
-                'search' => $search,
+                'status' => $status ?: null,
+                'search' => $search ?: null,
             ],
         ]);
     }
@@ -101,12 +132,16 @@ class ArticlesController extends Controller
     {
         $data = $this->validated($request);
 
+        $status = $request->user()->can('review', Article::class)
+            ? 'published'
+            : 'pending_review';
+
         $article = Article::create([
             'title' => $data['title'],
             'slug' => $this->uniqueSlug($data['title']),
             'excerpt' => $data['excerpt'] ?? null,
             'content' => $data['content'],
-            'status' => 'draft',
+            'status' => $status,
             'category_id' => $data['category_id'],
         ]);
 
@@ -132,12 +167,31 @@ class ArticlesController extends Controller
         return redirect()->route('articles.show', $article->slug);
     }
 
-
     public function destroy(Article $article): RedirectResponse
     {
         $article->delete();
 
         return redirect()->route('articles.index');
+    }
+
+    public function approve(Article $article): RedirectResponse
+    {
+        $this->authorize('review', $article);
+
+        $article->update([
+            'status' => 'published',
+        ]);
+
+        return back()->with('success', 'Article published.');
+    }
+
+    public function reject(Article $article): RedirectResponse
+    {
+        $this->authorize('review', $article);
+
+        $article->delete();
+
+        return back()->with('success', 'Article rejected.');
     }
 
     private function validated(Request $request, ?int $ignoreId = null): array
@@ -169,23 +223,5 @@ class ArticlesController extends Controller
         }
 
         return $slug;
-    }
-
-    public function publish(Article $article): RedirectResponse
-    {
-        $article->update([
-            'status' => 'published',
-        ]);
-
-        return redirect()->route('articles.index');
-    }
-
-    public function unpublish(Article $article): RedirectResponse
-    {
-        $article->update([
-            'status' => 'draft',
-        ]);
-
-        return redirect()->route('articles.index');
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('n1');
             $table->boolean('must_change_password')->default(false);
+            $table->json('permissions')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

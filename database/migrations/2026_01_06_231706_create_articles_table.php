@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('status')->default('draft');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
