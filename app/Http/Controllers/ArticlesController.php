@@ -14,15 +14,20 @@ use Inertia\Response;
 class ArticlesController extends Controller
 {
     public function index(): Response
-{
+    {
         $query = Article::query()
             ->with(['category:id,name', 'tags:id,name'])
             ->latest();
 
         $status = request('status');
+        $search = request('search');
 
         if (in_array($status, ['draft', 'published'], true)) {
             $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
         }
 
         return Inertia::render('Articles/Index', [
@@ -43,6 +48,10 @@ class ArticlesController extends Controller
             'tags' => Tag::query()
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'filters' => [
+                'status' => $status,
+                'search' => $search,
+            ],
         ]);
     }
 

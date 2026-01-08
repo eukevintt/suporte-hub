@@ -7,6 +7,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\SearchController;
 
 Route::redirect('/', '/login');
 
@@ -23,11 +24,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
 
         Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
+
+        Route::get('/articles/create', [ArticlesController::class, 'create'])->name('articles.create');
+        Route::get('/articles/{article:slug}', [ArticlesController::class, 'show'])->name('articles.show');
+
         Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
         Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
         Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
         Route::put('/articles/{article}/publish', [ArticlesController::class, 'publish'])->name('articles.publish');
         Route::put('/articles/{article}/unpublish', [ArticlesController::class, 'unpublish'])->name('articles.unpublish');
+
+        Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+        Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
 
         Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
         Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
