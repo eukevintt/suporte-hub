@@ -127,6 +127,31 @@ class ArticlesController extends Controller
                 ->exists();
         }
 
+        $isAdmin = $user ? Gate::forUser($user)->allows('admin') : false;
+
+        $comments = $article->comments()
+            ->with(['user:id,name'])
+            ->latest()
+            ->limit(20)
+            ->get([
+                'id',
+                'article_id',
+                'user_id',
+                'body',
+                'created_at',
+            ])
+            ->map(function ($c) use ($user, $isAdmin) {
+                return [
+                    'id' => $c->id,
+                    'body' => $c->body,
+                    'created_at' => $c->created_at,
+                    'user_id' => $c->user_id,
+                    'user' => $c->user,
+                    'can_delete' => $isAdmin || ((int) $c->user_id === (int) ($user?->id ?? 0)),
+                ];
+            })
+            ->values();
+
         return Inertia::render('Articles/Show', [
             'article' => $article->only([
                 'id',
@@ -146,6 +171,7 @@ class ArticlesController extends Controller
                 'likes_count' => $article->likes_count,
                 'liked_by_me' => $likedByMe,
             ],
+            'comments' => $comments,
 
             'categories' => Category::query()
                 ->orderBy('name')

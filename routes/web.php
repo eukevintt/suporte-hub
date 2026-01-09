@@ -10,6 +10,8 @@ use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ArticleImageUploadController;
 use App\Http\Controllers\ArticleLikeController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ArticleCommentController;
 
 
 Route::redirect('/', '/login');
@@ -24,7 +26,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware(['password.changed'])->group(function () {
-        Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
 
@@ -43,6 +45,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/articles/{article}/like', [ArticleLikeController::class, 'store'])->name('articles.like');
         Route::delete('/articles/{article}/like', [ArticleLikeController::class, 'destroy'])->name('articles.unlike');
+
+        Route::post('/articles/{article}/comments', [ArticleCommentController::class, 'store'])->name('articles.comments.store');
+
+        Route::delete('/comments/{comment}', [ArticleCommentController::class, 'destroy'])->name('comments.destroy');
+
 
         Route::get('/search', [SearchController::class, 'index'])->name('search.index');
         Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');

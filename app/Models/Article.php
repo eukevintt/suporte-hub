@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
@@ -39,6 +40,11 @@ class Article extends Model
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'article_likes')->withTimestamps();
+    }
+
+    public function comments(): HasMany
+    {
+    return $this->hasMany(ArticleComment::class);
     }
 
 }
