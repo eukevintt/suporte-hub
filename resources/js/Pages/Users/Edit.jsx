@@ -1,147 +1,142 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, useForm, usePage, Link } from "@inertiajs/react";
+import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash, faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
 
 export default function Edit({ user, roles }) {
-    const hasReview = Array.isArray(user?.permissions) && user.permissions.includes("review-articles");
+    const { auth } = usePage().props;
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const generatePassword = () => {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+        let pass = "";
+        for (let i = 0; i < 12; i++) {
+            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setData("password", pass);
+        setShowPassword(true);
+    };
 
     const { data, setData, put, processing, errors } = useForm({
-        name: user.name ?? "",
-        email: user.email ?? "",
-        role: user.role ?? (roles?.[0] ?? "n1"),
-        must_change_password: !!user.must_change_password,
-        can_review_articles: hasReview,
-
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        must_change_password: user.must_change_password,
+        can_review: user.can_review ?? false,
         password: "",
-        password_confirmation: "",
     });
 
     const submit = (e) => {
         e.preventDefault();
-        put(route("users.update", user.id), { preserveScroll: true });
+        put(route("users.update", user.id));
     };
 
     return (
         <AppLayout title="Editar usuário">
             <Head title="Editar usuário" />
 
-            <div className="mx-auto max-w-3xl px-4 py-8">
-                <div className="mb-6 flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Editar usuário</h1>
-                    <Link href={route("users.index")} className="text-sm text-slate-700 hover:text-slate-900">
-                        Voltar
-                    </Link>
-                </div>
+            <div className="max-w-xl">
+                <form onSubmit={submit} className="space-y-5">
+                    <div>
+                        <label className="text-sm font-medium">Nome</label>
+                        <input
+                            value={data.name}
+                            onChange={(e) => setData("name", e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                        {errors.name && <div className="mt-1 text-sm text-red-600">{errors.name}</div>}
+                    </div>
 
-                <div className="rounded-lg border bg-white p-6">
-                    <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <label className="text-sm font-medium">Nome</label>
+                    <div>
+                        <label className="text-sm font-medium">E-mail</label>
+                        <input
+                            value={data.email}
+                            onChange={(e) => setData("email", e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        />
+                        {errors.email && <div className="mt-1 text-sm text-red-600">{errors.email}</div>}
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium">Role</label>
+                        <select
+                            value={data.role}
+                            onChange={(e) => setData("role", e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            {roles.map((r) => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={data.must_change_password}
+                            onChange={(e) => setData("must_change_password", e.target.checked)}
+                        />
+                        <span className="text-sm">Deve trocar a senha no próximo login</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={data.can_review}
+                            onChange={(e) => setData("can_review", e.target.checked)}
+                        />
+                        <span className="text-sm">Pode revisar artigos (aprovar / rejeitar)</span>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <div className="text-sm font-medium mb-1">Trocar senha</div>
+                        <div className="text-xs text-gray-500 mb-2">Opcional — deixe em branco para manter.</div>
+
+
+                        <div className="relative">
                             <input
-                                value={data.name}
-                                onChange={(e) => setData("name", e.target.value)}
-                                className="mt-1 w-full rounded-md border px-3 py-2"
+                                type={showPassword ? "text" : "password"}
+                                value={data.password}
+                                onChange={(e) => setData("password", e.target.value)}
+                                className="w-full rounded-md border px-3 py-2 pr-20"
                             />
-                            {errors.name && <div className="mt-1 text-sm text-red-600">{errors.name}</div>}
-                        </div>
 
-                        <div>
-                            <label className="text-sm font-medium">E-mail</label>
-                            <input
-                                value={data.email}
-                                onChange={(e) => setData("email", e.target.value)}
-                                className="mt-1 w-full rounded-md border px-3 py-2"
-                            />
-                            {errors.email && <div className="mt-1 text-sm text-red-600">{errors.email}</div>}
-                        </div>
 
-                        <div>
-                            <label className="text-sm font-medium">Role</label>
-                            <select
-                                value={data.role}
-                                onChange={(e) => setData("role", e.target.value)}
-                                className="mt-1 w-full rounded-md border px-3 py-2"
-                            >
-                                {roles.map((r) => (
-                                    <option key={r} value={r}>
-                                        {r}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.role && <div className="mt-1 text-sm text-red-600">{errors.role}</div>}
-                        </div>
+                            <div className="absolute inset-y-0 right-2 flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                    title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                >
+                                    <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                                </button>
 
-                        <div>
-                            <label className="inline-flex items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
-                                    checked={data.must_change_password}
-                                    onChange={(e) => setData("must_change_password", e.target.checked)}
-                                    className="rounded border"
-                                />
-                                <span>Deve trocar a senha no próximo login</span>
-                            </label>
-                            {errors.must_change_password && (
-                                <div className="mt-1 text-sm text-red-600">{errors.must_change_password}</div>
-                            )}
-                        </div>
 
-                        <div>
-                            <label className="inline-flex items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
-                                    checked={data.can_review_articles}
-                                    onChange={(e) => setData("can_review_articles", e.target.checked)}
-                                    className="rounded border"
-                                />
-                                <span className="font-medium">Pode revisar artigos</span>
-                                <span className="text-gray-500">(aprovar / rejeitar)</span>
-                            </label>
-                            {errors.can_review_articles && (
-                                <div className="mt-1 text-sm text-red-600">{errors.can_review_articles}</div>
-                            )}
-                        </div>
-
-                        <div className="pt-2 border-t">
-                            <div className="text-sm font-medium">Trocar senha</div>
-                            <div className="text-xs text-gray-500">Preencha apenas se quiser definir uma nova senha.</div>
-
-                            <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div>
-                                    <label className="text-sm font-medium">Nova senha</label>
-                                    <input
-                                        type="password"
-                                        value={data.password}
-                                        onChange={(e) => setData("password", e.target.value)}
-                                        className="mt-1 w-full rounded-md border px-3 py-2"
-                                        autoComplete="new-password"
-                                    />
-                                    {errors.password && <div className="mt-1 text-sm text-red-600">{errors.password}</div>}
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium">Confirmar senha</label>
-                                    <input
-                                        type="password"
-                                        value={data.password_confirmation}
-                                        onChange={(e) => setData("password_confirmation", e.target.value)}
-                                        className="mt-1 w-full rounded-md border px-3 py-2"
-                                        autoComplete="new-password"
-                                    />
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={generatePassword}
+                                    className="text-gray-500 hover:text-gray-700"
+                                    title="Gerar senha aleatória"
+                                >
+                                    <i className="fa-solid fa-arrows-rotate"></i>
+                                </button>
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
-                            >
-                                {processing ? "Salvando..." : "Salvar"}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div className="pt-2">
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+                        >
+                            Salvar
+                        </button>
+                    </div>
+                </form>
             </div>
         </AppLayout>
     );

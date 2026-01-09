@@ -98,7 +98,6 @@ final class UsersController extends Controller
             'role' => ['required', Rule::in($allowedRoles)],
             'must_change_password' => ['required', 'boolean'],
             'can_review_articles' => ['sometimes', 'boolean'],
-
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
