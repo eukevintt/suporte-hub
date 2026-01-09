@@ -1,5 +1,6 @@
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
+import RichTextEditor from "@/Components/RichTextEditor";
 
 export default function Create({ categories, tags }) {
     const form = useForm({
@@ -95,14 +96,18 @@ export default function Create({ categories, tags }) {
 
                 <div>
                     <label className="block text-sm font-medium">Content</label>
-                    <textarea
-                        className="mt-1 block w-full rounded border-gray-300"
-                        rows={10}
-                        value={form.data.content}
-                        onChange={(e) => form.setData("content", e.target.value)}
-                    />
+
+                    <div className="mt-1">
+                        <RichTextEditor
+                            value={form.data.content}
+                            onChange={(html) => form.setData("content", html)}
+                        />
+                    </div>
+
+
                     {form.errors.content ? <div className="mt-1 text-sm text-red-600">{form.errors.content}</div> : null}
                 </div>
+
 
                 <button
                     type="submit"
