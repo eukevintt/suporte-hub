@@ -1,6 +1,7 @@
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useMemo, useState } from "react";
+import TinyRichTextEditor from "@/Components/TinyRichTextEditor";
 
 export default function Show({ article, categories, tagsList }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -19,8 +20,6 @@ export default function Show({ article, categories, tagsList }) {
     };
 
     const publishedLabel = useMemo(() => {
-        // regra temporária: se está published, usamos updated_at como "Publicado em"
-        // (no CHAT 11 podemos trocar por published_at real)
         const iso = article.status === "published" ? article.updated_at : article.created_at;
         if (!iso) return "—";
         try {
@@ -76,6 +75,11 @@ export default function Show({ article, categories, tagsList }) {
 
             <div className="mt-4">
                 <h2 className="text-2xl font-semibold">{article.title}</h2>
+
+                <div>
+                    <span className="font-medium">Autor:</span> {article.author?.name ?? "—"}
+                </div>
+
 
                 <div className="mt-2 text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
                     <div>
@@ -156,14 +160,18 @@ export default function Show({ article, categories, tagsList }) {
 
                         <div>
                             <label className="block text-sm font-medium">Content</label>
-                            <textarea
-                                className="mt-1 block w-full rounded border-gray-300"
-                                rows={10}
-                                value={form.data.content}
-                                onChange={(e) => form.setData("content", e.target.value)}
-                            />
+                            <div className="mt-1">
+                                <TinyRichTextEditor
+                                    articleId={article.id}
+                                    value={form.data.content}
+                                    onChange={(html) => form.setData("content", html)}
+                                />
+
+                            </div>
                             {form.errors.content ? <div className="mt-1 text-sm text-red-600">{form.errors.content}</div> : null}
                         </div>
+
+
 
                         <button
                             type="submit"
@@ -174,7 +182,22 @@ export default function Show({ article, categories, tagsList }) {
                         </button>
                     </form>
                 ) : (
-                    <div className="mt-6 whitespace-pre-wrap text-sm leading-6">{article.content}</div>
+                    <div
+                        className="mt-6 text-sm leading-6
+                            [&_p]:my-3
+                            [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6
+                            [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6
+                            [&_li]:my-1
+                            [&_a]:underline
+                            [&_code]:rounded [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:py-0.5
+                            [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-gray-900 [&_pre]:p-3 [&_pre]:text-gray-100
+                            [&_h1]:my-4 [&_h1]:text-2xl [&_h1]:font-semibold
+                            [&_h2]:my-4 [&_h2]:text-xl [&_h2]:font-semibold
+                            [&_h3]:my-3 [&_h3]:text-lg [&_h3]:font-semibold"
+                        dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
+                    />
+
+
                 )}
             </div>
         </AppLayout>

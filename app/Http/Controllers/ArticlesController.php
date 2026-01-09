@@ -7,7 +7,9 @@ use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,7 +24,8 @@ class ArticlesController extends Controller
         $search = $request->string('search')->toString();
 
         $baseQuery = fn () => Article::query()
-            ->with(['category:id,name', 'tags:id,name'])
+            ->with(['category:id,name', 'tags:id,name', 'author:id,name'])
+            ->withCount('likes')
             ->latest();
 
         $pendingReview = collect();
@@ -38,31 +41,49 @@ class ArticlesController extends Controller
                     'content',
                     'status',
                     'category_id',
+                    'author_id',
                     'created_at',
                     'updated_at',
                 ]);
         }
 
-        // Everyone sees only published in the main list
         $query = $baseQuery()->where('status', 'published');
 
         if ($search !== '') {
             $query->where('title', 'like', '%' . $search . '%');
         }
 
-        return Inertia::render('Articles/Index', [
-            'articles' => $query->get([
-                'id',
-                'title',
-                'slug',
-                'excerpt',
-                'content',
-                'status',
-                'category_id',
-                'created_at',
-                'updated_at',
-            ]),
+        $articles = $query->get([
+            'id',
+            'title',
+            'slug',
+            'excerpt',
+            'content',
+            'status',
+            'category_id',
+            'author_id',
+            'created_at',
+            'updated_at',
+        ]);
 
+        $likedIds = [];
+        if ($user) {
+            $ids = $articles->pluck('id')->merge($pendingReview->pluck('id'))->unique()->values();
+
+            if ($ids->count()) {
+                $likedIds = DB::table('article_likes')
+                    ->where('user_id', $user->id)
+                    ->whereIn('article_id', $ids)
+                    ->pluck('article_id')
+                    ->all();
+            }
+        }
+
+        $articles->each(fn ($a) => $a->setAttribute('liked_by_me', in_array($a->id, $likedIds, true)));
+        $pendingReview->each(fn ($a) => $a->setAttribute('liked_by_me', in_array($a->id, $likedIds, true)));
+
+        return Inertia::render('Articles/Index', [
+            'articles' => $articles,
             'pendingReview' => $pendingReview,
             'canReview' => $isReviewer,
             'canDeleteArticles' => Gate::allows('delete-articles'),
@@ -91,9 +112,20 @@ class ArticlesController extends Controller
         ]);
     }
 
-    public function show(Article $article): Response
+    public function show(Request $request, Article $article): Response
     {
-        $article->load(['category:id,name', 'tags:id,name']);
+        $article->load(['category:id,name', 'tags:id,name', 'author:id,name']);
+        $article->loadCount('likes');
+
+        $user = $request->user();
+
+        $likedByMe = false;
+        if ($user) {
+            $likedByMe = DB::table('article_likes')
+                ->where('user_id', $user->id)
+                ->where('article_id', $article->id)
+                ->exists();
+        }
 
         return Inertia::render('Articles/Show', [
             'article' => $article->only([
@@ -104,11 +136,15 @@ class ArticlesController extends Controller
                 'content',
                 'status',
                 'category_id',
+                'author_id',
                 'created_at',
                 'updated_at',
             ]) + [
                 'category' => $article->category,
                 'tags' => $article->tags,
+                'author' => $article->author,
+                'likes_count' => $article->likes_count,
+                'liked_by_me' => $likedByMe,
             ],
 
             'categories' => Category::query()
@@ -136,7 +172,16 @@ class ArticlesController extends Controller
             'content' => $data['content'],
             'status' => $status,
             'category_id' => $data['category_id'],
+            'author_id' => $request->user()->id,
         ]);
+
+        $article->content = $this->moveAllTmpImagesToArticle(
+            $article->content ?? '',
+            $article->id,
+            $request->user()->id
+        );
+
+        $article->save();
 
         $article->tags()->sync($data['tag_ids'] ?? []);
 
@@ -164,7 +209,8 @@ class ArticlesController extends Controller
     {
         Gate::authorize('delete-articles');
 
-        $article->delete();
+        Storage::disk('public')->deleteDirectory("articles/{$article->id}");
+        $article->forceDelete();
 
         return redirect()->route('articles.index');
     }
@@ -184,7 +230,7 @@ class ArticlesController extends Controller
     {
         Gate::authorize('review', $article);
 
-        $article->delete();
+        $article->forceDelete();
 
         return back()->with('success', 'Article rejected.');
     }
@@ -218,5 +264,34 @@ class ArticlesController extends Controller
         }
 
         return $slug;
+    }
+
+    private function moveAllTmpImagesToArticle(string $html, int $articleId, int $userId): string
+    {
+        $disk = Storage::disk('public');
+
+        $tmpDir = "articles/tmp/{$userId}";
+        $targetDir = "articles/{$articleId}/images";
+
+        if (!$disk->exists($tmpDir)) {
+            return $html;
+        }
+
+        $disk->makeDirectory($targetDir);
+
+        foreach ($disk->files($tmpDir) as $file) {
+            $filename = basename($file);
+            $disk->move($file, "{$targetDir}/{$filename}");
+        }
+
+        $html = str_replace(
+            "/storage/articles/tmp/{$userId}/",
+            "/storage/articles/{$articleId}/images/",
+            $html
+        );
+
+        $disk->deleteDirectory($tmpDir);
+
+        return $html;
     }
 }

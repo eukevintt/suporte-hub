@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -35,4 +37,15 @@ class User extends Authenticatable
         $perms = $this->permissions ?? [];
         return is_array($perms) && in_array($permission, $perms, true);
     }
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
+    }
+
+    public function likedArticles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_likes')->withTimestamps();
+    }
+
 }

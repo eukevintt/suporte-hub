@@ -93,6 +93,7 @@ export default function Index({
                                     <th className="px-4 py-2">Title</th>
                                     <th className="px-4 py-2">Category</th>
                                     <th className="px-4 py-2">Tags</th>
+                                    <th className="px-4 py-2">Author</th>
                                     <th className="px-4 py-2"></th>
                                 </tr>
                             </thead>
@@ -111,6 +112,7 @@ export default function Index({
                                         <td className="px-4 py-2">
                                             {(a.tags ?? []).length ? a.tags.map((t) => t.name).join(", ") : "-"}
                                         </td>
+                                        <td className="px-4 py-2">{a.author?.name ?? "-"}</td>
                                         <td className="px-4 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-end gap-2">
                                                 <button
@@ -158,6 +160,7 @@ export default function Index({
                                 <th className="px-4 py-2">Title</th>
                                 <th className="px-4 py-2">Category</th>
                                 <th className="px-4 py-2">Tags</th>
+                                <th className="px-4 py-2">Author</th>
                                 <th className="px-4 py-2">Status</th>
                                 <th className="px-4 py-2"></th>
                             </tr>
@@ -177,6 +180,7 @@ export default function Index({
                                     <td className="px-4 py-2">
                                         {(a.tags ?? []).length ? a.tags.map((t) => t.name).join(", ") : "-"}
                                     </td>
+                                    <td className="px-4 py-2">{a.author?.name ?? "-"}</td>
                                     <td className="px-4 py-2">
                                         <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium border">
                                             {a.status}

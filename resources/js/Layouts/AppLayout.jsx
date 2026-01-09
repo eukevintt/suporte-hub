@@ -4,7 +4,7 @@ import { Link, usePage, router } from "@inertiajs/react";
 const nav = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Artigos", href: "/articles" },
-    { label: "Categorias", href: "/categories" },
+    { label: "Categorias", href: "/categories", adminOnly: true },
     { label: "Tags", href: "/tags" },
     { label: "Usuários", href: "/users", adminOnly: true },
 ];

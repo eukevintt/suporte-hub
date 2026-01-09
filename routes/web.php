@@ -8,6 +8,9 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ArticleImageUploadController;
+use App\Http\Controllers\ArticleLikeController;
+
 
 Route::redirect('/', '/login');
 
@@ -31,20 +34,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
         Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
         Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
+        Route::post('/articles/images/upload', [ArticleImageUploadController::class, 'store'])->name('articles.images.upload');
 
         Route::middleware(['can:review,article'])->group(function () {
             Route::put('/articles/{article}/approve', [ArticlesController::class, 'approve'])->name('articles.approve');
             Route::put('/articles/{article}/reject', [ArticlesController::class, 'reject'])->name('articles.reject');
         });
 
+        Route::post('/articles/{article}/like', [ArticleLikeController::class, 'store'])->name('articles.like');
+        Route::delete('/articles/{article}/like', [ArticleLikeController::class, 'destroy'])->name('articles.unlike');
 
         Route::get('/search', [SearchController::class, 'index'])->name('search.index');
         Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
-
-        Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
-        Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
-        Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
-        Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
 
         Route::get('/tags', [TagsController::class, 'index'])->name('tags.index');
         Route::post('/tags', [TagsController::class, 'store'])->name('tags.store');
@@ -59,6 +60,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
             Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
             Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
+        });
+
+        Route::middleware(['can:admin'])->group(function () {
+            Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
+            Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
+            Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
+            Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
         });
     });
 });

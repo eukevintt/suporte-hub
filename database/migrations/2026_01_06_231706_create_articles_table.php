@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('articles', function (Blueprint $table) {
@@ -19,14 +16,14 @@ return new class extends Migration
             $table->longText('content');
             $table->string('status')->default('draft');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('author_id')->constrained('users')->restrictOnDelete();
+
             $table->timestamps();
             $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('articles');

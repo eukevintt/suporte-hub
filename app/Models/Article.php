@@ -18,6 +18,7 @@ class Article extends Model
         'content',
         'status',
         'category_id',
+        'author_id',
     ];
 
     public function category(): BelongsTo
@@ -29,4 +30,15 @@ class Article extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'article_likes')->withTimestamps();
+    }
+
 }
