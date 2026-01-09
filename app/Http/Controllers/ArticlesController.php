@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +20,6 @@ class ArticlesController extends Controller
         $isReviewer = $user?->can('review', Article::class) ?? false;
 
         $search = $request->string('search')->toString();
-        $status = $request->string('status')->toString();
 
         $baseQuery = fn () => Article::query()
             ->with(['category:id,name', 'tags:id,name'])
@@ -43,15 +43,8 @@ class ArticlesController extends Controller
                 ]);
         }
 
-        $query = $baseQuery();
-
-        if (!$isReviewer) {
-            $query->where('status', 'published');
-        } else {
-            if (in_array($status, ['pending_review', 'published'], true)) {
-                $query->where('status', $status);
-            }
-        }
+        // Everyone sees only published in the main list
+        $query = $baseQuery()->where('status', 'published');
 
         if ($search !== '') {
             $query->where('title', 'like', '%' . $search . '%');
@@ -72,6 +65,7 @@ class ArticlesController extends Controller
 
             'pendingReview' => $pendingReview,
             'canReview' => $isReviewer,
+            'canDeleteArticles' => Gate::allows('delete-articles'),
 
             'categories' => Category::query()
                 ->orderBy('name')
@@ -80,7 +74,6 @@ class ArticlesController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name']),
             'filters' => [
-                'status' => $status ?: null,
                 'search' => $search ?: null,
             ],
         ]);
@@ -169,6 +162,8 @@ class ArticlesController extends Controller
 
     public function destroy(Article $article): RedirectResponse
     {
+        Gate::authorize('delete-articles');
+
         $article->delete();
 
         return redirect()->route('articles.index');
@@ -176,7 +171,7 @@ class ArticlesController extends Controller
 
     public function approve(Article $article): RedirectResponse
     {
-        $this->authorize('review', $article);
+        Gate::authorize('review', $article);
 
         $article->update([
             'status' => 'published',
@@ -187,7 +182,7 @@ class ArticlesController extends Controller
 
     public function reject(Article $article): RedirectResponse
     {
-        $this->authorize('review', $article);
+        Gate::authorize('review', $article);
 
         $article->delete();
 

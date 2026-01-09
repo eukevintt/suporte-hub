@@ -30,5 +30,9 @@ class AuthServiceProvider extends ServiceProvider
                 ? $user->hasPermission('review-articles')
                 : false;
         });
+
+        Gate::define('delete-articles', function ($user) {
+            return in_array($user->role, ['superadmin', 'admin'], true);
+        });
     }
 }

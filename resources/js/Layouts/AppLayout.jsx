@@ -6,12 +6,24 @@ const nav = [
     { label: "Artigos", href: "/articles" },
     { label: "Categorias", href: "/categories" },
     { label: "Tags", href: "/tags" },
-    { label: "Usuários", href: "/users" },
+    { label: "Usuários", href: "/users", adminOnly: true },
 ];
 
 export default function AppLayout({ title, children, query }) {
     const { props } = usePage();
     const user = props?.auth?.user;
+
+    const isAdmin = useMemo(() => {
+        const role = String(user?.role ?? "").toLowerCase();
+        return role === "admin" || role === "superadmin";
+    }, [user?.role]);
+
+    const visibleNav = useMemo(() => {
+        return nav.filter((item) => {
+            if (!item.adminOnly) return true;
+            return isAdmin;
+        });
+    }, [isAdmin]);
 
     const minCharsForSuggestions = 1;
 
@@ -92,7 +104,6 @@ export default function AppLayout({ title, children, query }) {
     };
 
     const onBlur = () => {
-        // allow click on suggestion before closing
         blurTimeoutRef.current = setTimeout(() => setOpen(false), 150);
     };
 
@@ -105,7 +116,7 @@ export default function AppLayout({ title, children, query }) {
                     </div>
 
                     <nav className="flex-1 p-3 space-y-1">
-                        {nav.map((item) => (
+                        {visibleNav.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
@@ -123,9 +134,7 @@ export default function AppLayout({ title, children, query }) {
 
                     <div className="p-4 border-t border-gray-200">
                         <div className="text-xs text-gray-500">Logado como</div>
-                        <div className="text-sm font-medium truncate">
-                            {user?.name ?? "—"}
-                        </div>
+                        <div className="text-sm font-medium truncate">{user?.name ?? "—"}</div>
                     </div>
                 </aside>
 
@@ -149,16 +158,12 @@ export default function AppLayout({ title, children, query }) {
 
                                             if (e.key === "ArrowDown") {
                                                 e.preventDefault();
-                                                setActiveIndex((i) =>
-                                                    i < suggestions.length - 1 ? i + 1 : 0
-                                                );
+                                                setActiveIndex((i) => (i < suggestions.length - 1 ? i + 1 : 0));
                                             }
 
                                             if (e.key === "ArrowUp") {
                                                 e.preventDefault();
-                                                setActiveIndex((i) =>
-                                                    i > 0 ? i - 1 : suggestions.length - 1
-                                                );
+                                                setActiveIndex((i) => (i > 0 ? i - 1 : suggestions.length - 1));
                                             }
 
                                             if (e.key === "Enter" && activeIndex >= 0) {
@@ -185,9 +190,7 @@ export default function AppLayout({ title, children, query }) {
                                                                 href={`/articles/${item.slug}`}
                                                                 className={[
                                                                     "block px-3 py-2 text-sm",
-                                                                    activeIndex === index
-                                                                        ? "bg-gray-100"
-                                                                        : "hover:bg-gray-100",
+                                                                    activeIndex === index ? "bg-gray-100" : "hover:bg-gray-100",
                                                                 ].join(" ")}
                                                                 onMouseEnter={() => setActiveIndex(index)}
                                                             >
@@ -197,9 +200,7 @@ export default function AppLayout({ title, children, query }) {
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <div className="px-3 py-2 text-sm text-gray-500">
-                                                    Nenhum resultado encontrado
-                                                </div>
+                                                <div className="px-3 py-2 text-sm text-gray-500">Nenhum resultado encontrado</div>
                                             )}
 
                                             <div className="border-t">
@@ -217,9 +218,7 @@ export default function AppLayout({ title, children, query }) {
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <div className="hidden sm:block text-sm text-gray-700 truncate max-w-[220px]">
-                                    {user?.email ?? ""}
-                                </div>
+                                <div className="hidden sm:block text-sm text-gray-700 truncate max-w-[220px]">{user?.email ?? ""}</div>
                                 <button
                                     type="button"
                                     onClick={logout}
@@ -237,13 +236,10 @@ export default function AppLayout({ title, children, query }) {
                             <p className="text-sm text-gray-500">Página placeholder — Em construção</p>
                         </div>
 
-                        <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">
-                            {children}
-                        </div>
+                        <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">{children}</div>
                     </main>
                 </div>
             </div>
         </div>
     );
 }
-
