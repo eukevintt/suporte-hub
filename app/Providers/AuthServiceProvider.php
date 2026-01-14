@@ -38,5 +38,14 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('delete-articles', function ($user) {
             return in_array($user->role, ['superadmin', 'admin'], true);
         });
+
+        Gate::define('edit-article', function ($user, \App\Models\Article $article) {
+            if (in_array($user->role, ['superadmin', 'admin'], true)) {
+                return true;
+            }
+
+            return $article->author_id === $user->id;
+        });
+
     }
 }

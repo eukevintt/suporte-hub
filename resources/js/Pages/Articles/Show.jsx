@@ -3,7 +3,7 @@ import { Head, Link, router, useForm } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 import TinyRichTextEditor from "@/Components/TinyRichTextEditor";
 
-export default function Show({ article, categories, tagsList, comments = [] }) {
+export default function Show({ article, categories, tagsList, comments = [], canEdit = false }) {
     const [isEditing, setIsEditing] = useState(false);
 
     const [likedByMe, setLikedByMe] = useState(Boolean(article.liked_by_me));
@@ -136,14 +136,16 @@ export default function Show({ article, categories, tagsList, comments = [] }) {
                 <Link href={route("articles.index")} className="text-sm underline">
                     Voltar
                 </Link>
+                {canEdit ? (
+                    <button
+                        type="button"
+                        className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+                        onClick={() => setIsEditing((v) => !v)}
+                    >
+                        {isEditing ? "Cancelar" : "Editar"}
+                    </button>
+                ) : null}
 
-                <button
-                    type="button"
-                    className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50"
-                    onClick={() => setIsEditing((v) => !v)}
-                >
-                    {isEditing ? "Cancelar" : "Editar"}
-                </button>
             </div>
 
             <div className="mt-4">

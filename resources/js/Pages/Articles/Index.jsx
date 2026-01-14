@@ -1,5 +1,5 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
 export default function Index({
@@ -10,9 +10,29 @@ export default function Index({
 }) {
     const [pending, setPending] = useState(pendingReview ?? []);
 
+    const { url } = usePage();
+    const [showPendingNotice, setShowPendingNotice] = useState(false);
+
     useEffect(() => {
         setPending(pendingReview ?? []);
     }, [pendingReview]);
+
+    useEffect(() => {
+        try {
+            const u = new URL(url, window.location.origin);
+            const submitted = u.searchParams.get("submitted");
+
+            if (submitted === "pending_review") {
+                setShowPendingNotice(true);
+
+                const t = setTimeout(() => setShowPendingNotice(false), 7000);
+
+                window.history.replaceState({}, "", route("articles.index"));
+
+                return () => clearTimeout(t);
+            }
+        } catch { }
+    }, [url]);
 
     const destroy = (id) => {
         if (!confirm("Excluir este artigo?")) return;
@@ -75,6 +95,15 @@ export default function Index({
                     </Link>
                 </div>
             </div>
+
+            {showPendingNotice ? (
+                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <div className="font-semibold">Enviado para análise</div>
+                    <div className="text-amber-800">
+                        Seu artigo entrou na fila de revisão e ficará visível para todos após aprovação.
+                    </div>
+                </div>
+            ) : null}
 
             {canReview ? (
                 <div className="mt-6 rounded-lg border bg-white">

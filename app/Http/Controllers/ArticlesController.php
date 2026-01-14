@@ -180,6 +180,7 @@ class ArticlesController extends Controller
             'tagsList' => Tag::query()
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'canEdit' => Gate::allows('edit-article', $article),
         ]);
     }
 
@@ -211,11 +212,17 @@ class ArticlesController extends Controller
 
         $article->tags()->sync($data['tag_ids'] ?? []);
 
+        if ($status === 'pending_review') {
+            return redirect()->route('articles.index', ['submitted' => 'pending_review']);
+        }
+
         return redirect()->route('articles.index');
     }
 
     public function update(Request $request, Article $article): RedirectResponse
     {
+        Gate::authorize('edit-article', $article);
+
         $data = $this->validated($request, $article->id);
 
         $article->update([

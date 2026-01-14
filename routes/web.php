@@ -34,13 +34,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/articles/{article:slug}', [ArticlesController::class, 'show'])->name('articles.show');
 
         Route::post('/articles', [ArticlesController::class, 'store'])->name('articles.store');
-        Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
-        Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
+
         Route::post('/articles/images/upload', [ArticleImageUploadController::class, 'store'])->name('articles.images.upload');
 
-        Route::middleware(['can:review,article'])->group(function () {
+        Route::middleware(['can:review-articles'])->group(function () {
             Route::put('/articles/{article}/approve', [ArticlesController::class, 'approve'])->name('articles.approve');
             Route::put('/articles/{article}/reject', [ArticlesController::class, 'reject'])->name('articles.reject');
+        });
+
+        Route::middleware(['can:edit-article,article'])->group(function () {
+            Route::put('/articles/{article}', [ArticlesController::class, 'update'])->name('articles.update');
+        });
+
+        Route::middleware(['can:admin'])->group(function () {
+            Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
         });
 
         Route::post('/articles/{article}/like', [ArticleLikeController::class, 'store'])->name('articles.like');
@@ -75,6 +82,10 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
             Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
         });
+
+        Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('profiles.show');
+
+
     });
 });
 
