@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Article;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
 
 class UserProfileController extends Controller
 {
@@ -15,6 +16,23 @@ class UserProfileController extends Controller
             ->where('author_id', $user->id)
             ->where('status', 'published')
             ->count();
+
+        $articles = Article::query()
+        ->where('author_id', $user->id)
+        ->where('status', 'published')
+        ->with(['category:id,name'])
+        ->withCount('likes')
+        ->latest()
+        ->limit(20)
+        ->get([
+            'id',
+            'title',
+            'slug',
+            'category_id',
+            'created_at',
+        ]);
+
+
 
         return Inertia::render('Profile/Show', [
             'user' => [
@@ -28,6 +46,7 @@ class UserProfileController extends Controller
             'stats' => [
                 'published_count' => $publishedCount,
             ],
+            'articles' => $articles,
         ]);
     }
 }
