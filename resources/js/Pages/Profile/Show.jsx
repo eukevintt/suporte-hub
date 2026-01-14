@@ -45,6 +45,13 @@ export default function Show({ user, viewer, stats, articles = [] }) {
                     <div className="text-sm text-gray-500">Artigos publicados</div>
                     <div className="mt-1 text-2xl font-semibold">{stats.published_count}</div>
                 </div>
+
+                <div className="rounded-lg border bg-white p-4">
+                    <div className="text-sm text-gray-500">Curtidas recebidas</div>
+                    <div className="mt-1 text-2xl font-semibold">
+                        {stats.total_likes_received}
+                    </div>
+                </div>
             </div>
 
             <div className="mt-8">

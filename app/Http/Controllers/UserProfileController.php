@@ -18,21 +18,25 @@ class UserProfileController extends Controller
             ->count();
 
         $articles = Article::query()
-        ->where('author_id', $user->id)
-        ->where('status', 'published')
-        ->with(['category:id,name'])
-        ->withCount('likes')
-        ->latest()
-        ->limit(20)
-        ->get([
-            'id',
-            'title',
-            'slug',
-            'category_id',
-            'created_at',
-        ]);
+            ->where('author_id', $user->id)
+            ->where('status', 'published')
+            ->with(['category:id,name'])
+            ->withCount('likes')
+            ->latest()
+            ->limit(20)
+            ->get([
+                'id',
+                'title',
+                'slug',
+                'category_id',
+                'created_at',
+            ]);
 
-
+        $totalLikesReceived = DB::table('article_likes')
+            ->join('articles', 'articles.id', '=', 'article_likes.article_id')
+            ->where('articles.author_id', $user->id)
+            ->where('articles.status', 'published')
+            ->count();
 
         return Inertia::render('Profile/Show', [
             'user' => [
@@ -47,6 +51,11 @@ class UserProfileController extends Controller
                 'published_count' => $publishedCount,
             ],
             'articles' => $articles,
+            'stats' => [
+                'published_count' => $publishedCount,
+                'total_likes_received' => $totalLikesReceived,
+            ],
+
         ]);
     }
 }
