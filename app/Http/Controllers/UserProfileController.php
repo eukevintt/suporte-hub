@@ -22,6 +22,9 @@ class UserProfileController extends Controller
                 'name' => $user->name,
                 'role' => $user->role,
             ],
+            'viewer' => [
+                'id' => request()->user()->id,
+            ],
             'stats' => [
                 'published_count' => $publishedCount,
             ],

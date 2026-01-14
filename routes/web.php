@@ -12,7 +12,7 @@ use App\Http\Controllers\ArticleImageUploadController;
 use App\Http\Controllers\ArticleLikeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArticleCommentController;
-
+use App\Http\Controllers\UserProfileController;
 
 Route::redirect('/', '/login');
 
