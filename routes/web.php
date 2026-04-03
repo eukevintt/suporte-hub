@@ -13,6 +13,7 @@ use App\Http\Controllers\ArticleLikeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArticleCommentController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\ProfileController;
 
 Route::redirect('/', '/login');
 
@@ -66,7 +67,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/tags/{tag}', [TagsController::class, 'update'])->name('tags.update');
         Route::delete('/tags/{tag}', [TagsController::class, 'destroy'])->name('tags.destroy');
 
-        Route::get('/profile', fn () => Inertia::render('Profile/Edit'))->name('profile.edit');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::middleware(['can:access-users'])->group(function () {
             Route::get('/users', [UsersController::class, 'index'])->name('users.index');
