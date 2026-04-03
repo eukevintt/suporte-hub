@@ -32,6 +32,17 @@ export default function Show({ user, viewer, stats, articles = [] }) {
         }
     };
 
+    const roleLabelMap = {
+        superadmin: "Superadministrador",
+        admin: "Administrador",
+        n1: "Suporte N1",
+        n2: "Suporte N2",
+        n3: "Suporte N3",
+        iniciante: "Iniciante",
+    };
+
+    const roleLabel = user?.role ? roleLabelMap[user.role] ?? user.role : null;
+
     return (
         <AppLayout title={`Perfil — ${user.name}`}>
             <Head title={`Perfil — ${user.name}`} />
@@ -44,9 +55,9 @@ export default function Show({ user, viewer, stats, articles = [] }) {
 
                     <div>
                         <div className="text-xl font-semibold">{user.name}</div>
-                        {user.role ? (
+                        {roleLabel ? (
                             <span className="mt-1 inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">
-                                {user.role}
+                                {roleLabel}
                             </span>
                         ) : null}
                     </div>
@@ -126,6 +137,17 @@ export default function Show({ user, viewer, stats, articles = [] }) {
                     <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">
                         <div className="font-medium text-gray-700">Nada por aqui ainda</div>
                         <div className="mt-1">Este usuário ainda não publicou nenhum artigo.</div>
+                    </div>
+                )}
+
+                {articles.length > 0 && (
+                    <div className="mt-4 text-right">
+                        <Link
+                            href={route("profiles.articles", user.username)}
+                            className="text-sm font-medium text-blue-600 hover:underline"
+                        >
+                            Ver todos os artigos →
+                        </Link>
                     </div>
                 )}
             </div>

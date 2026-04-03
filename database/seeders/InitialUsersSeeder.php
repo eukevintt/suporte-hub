@@ -17,8 +17,8 @@ class InitialUsersSeeder extends Seeder
     public function run(): void
     {
     $users = [
-        ['email' => 'superadmin@suportehub.local', 'role' => 'superadmin'],
-        ['email' => 'admin@suportehub.local', 'role' => 'admin'],
+        ['email' => 'superadmin@suportehub.local', 'role' => 'superadmin', 'username' => 'superadmin'],
+        ['email' => 'admin@suportehub.local', 'role' => 'admin', 'username' => 'admin'],
     ];
 
     foreach ($users as $data) {
@@ -28,6 +28,7 @@ class InitialUsersSeeder extends Seeder
             ['email' => $data['email']],
             [
                 'name' => $data['role'],
+                'username' => $data['username'],
                 'password' => Hash::make($password),
                 'role' => $data['role'],
                 'must_change_password' => true,

@@ -23,7 +23,7 @@ class UserProfileController extends Controller
             ->with(['category:id,name'])
             ->withCount('likes')
             ->latest()
-            ->limit(20)
+            ->limit(5)
             ->get([
                 'id',
                 'title',
@@ -41,6 +41,7 @@ class UserProfileController extends Controller
         return Inertia::render('Profile/Show', [
             'user' => [
                 'id' => $user->id,
+                'username' => $user->username,
                 'name' => $user->name,
                 'role' => $user->role,
             ],
@@ -56,6 +57,33 @@ class UserProfileController extends Controller
                 'total_likes_received' => $totalLikesReceived,
             ],
 
+        ]);
+    }
+
+    public function articles(User $user): Response
+    {
+        $articles = $user->articles()
+            ->where('status', 'published')
+            ->with('category')
+            ->withCount('likes')
+            ->latest('created_at')
+            ->get([
+                'id',
+                'title',
+                'slug',
+                'category_id',
+                'created_at',
+                'author_id',
+            ]);
+
+        return Inertia::render('Users/Articles', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+                'role' => $user->role,
+            ],
+            'articles' => $articles,
         ]);
     }
 }

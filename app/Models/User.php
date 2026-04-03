@@ -14,6 +14,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role',
@@ -48,4 +49,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Article::class, 'article_likes')->withTimestamps();
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'username';
+    }
 }

@@ -36,25 +36,33 @@ export default function Edit({ mustVerifyEmail, status, auth }) {
                             Foto
                         </h2>
                         <p className="mt-1 text-sm text-gray-600">
-                            Estrutura preparada para futura alteração de foto de
-                            perfil.
+                            Estrutura preparada para futura alteração de foto de perfil.
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-900 text-lg font-semibold text-white">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-900 text-xl font-semibold text-white">
                             {initials}
                         </div>
 
-                        <div className="space-y-2">
-                            <button
-                                type="button"
-                                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                            >
-                                Alterar foto
-                            </button>
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900">
+                                {user?.name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                {user?.email}
+                            </p>
 
-                            <p className="text-xs text-gray-500">
+                            <div className="mt-4">
+                                <button
+                                    type="button"
+                                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                >
+                                    Alterar foto
+                                </button>
+                            </div>
+
+                            <p className="mt-2 text-xs text-gray-500">
                                 Upload ainda não disponível nesta etapa.
                             </p>
                         </div>

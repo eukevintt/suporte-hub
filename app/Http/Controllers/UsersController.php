@@ -51,8 +51,11 @@ final class UsersController extends Controller
             $permissions[] = 'review-articles';
         }
 
+        $username = $this->generateUniqueUsernameFromEmail($data['email']);
+
         User::create([
             'name' => $data['name'],
+            'username' => $username,
             'email' => $data['email'],
             'role' => $data['role'],
             'permissions' => $permissions,
@@ -153,6 +156,26 @@ final class UsersController extends Controller
         $user->delete();
 
         return redirect()->route('users.index');
+    }
+
+    private function generateUniqueUsernameFromEmail(string $email): string
+    {
+        $base = Str::before($email, '@');
+        $base = Str::lower(trim($base));
+
+        if ($base === '') {
+            $base = 'user';
+        }
+
+        $username = $base;
+        $counter = 1;
+
+        while (User::where('username', $username)->exists()) {
+            $username = $base . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
 
     private function allowedRolesFor(string $actorRole): array

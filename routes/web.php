@@ -86,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('profiles.show');
-
+        Route::get('/u/{user}/articles', [UserProfileController::class, 'articles'])->name('profiles.articles');
 
     });
 });
