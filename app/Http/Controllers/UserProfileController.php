@@ -67,14 +67,24 @@ class UserProfileController extends Controller
             ->with('category')
             ->withCount('likes')
             ->latest('created_at')
-            ->get([
-                'id',
-                'title',
-                'slug',
-                'category_id',
-                'created_at',
-                'author_id',
-            ]);
+            ->paginate(10)
+            ->through(function ($article) {
+                return [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'category_id' => $article->category_id,
+                    'created_at' => $article->created_at,
+                    'author_id' => $article->author_id,
+                    'likes_count' => $article->likes_count,
+                    'category' => $article->category
+                        ? [
+                            'id' => $article->category->id,
+                            'name' => $article->category->name,
+                        ]
+                        : null,
+                ];
+            });
 
         return Inertia::render('Users/Articles', [
             'user' => [
