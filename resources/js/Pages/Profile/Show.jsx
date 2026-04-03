@@ -1,8 +1,10 @@
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, Link } from "@inertiajs/react";
+import { useState } from "react";
 
 export default function Show({ user, viewer, stats, articles = [] }) {
     const isMe = Number(viewer?.id) === Number(user?.id);
+    const [copied, setCopied] = useState(false);
 
     const initials = String(user?.name ?? "")
         .trim()
@@ -12,6 +14,23 @@ export default function Show({ user, viewer, stats, articles = [] }) {
         .slice(0, 2)
         .join("")
         .toUpperCase();
+
+    const copyProfileLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1200);
+        } catch {
+            const el = document.createElement("textarea");
+            el.value = window.location.href;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1200);
+        }
+    };
 
     return (
         <AppLayout title={`Perfil — ${user.name}`}>
@@ -25,19 +44,35 @@ export default function Show({ user, viewer, stats, articles = [] }) {
 
                     <div>
                         <div className="text-xl font-semibold">{user.name}</div>
-                        {user.role ? <div className="text-sm text-gray-500">{user.role}</div> : null}
+                        {user.role ? (
+                            <span className="mt-1 inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">
+                                {user.role}
+                            </span>
+                        ) : null}
                     </div>
                 </div>
 
-                {isMe ? (
-                    <Link
-                        href={route("profile.edit")}
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={copyProfileLink}
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50"
-                        title="Configurações do perfil"
+                        title="Copiar link do perfil"
                     >
-                        <i className="fa-solid fa-gear" />
-                    </Link>
-                ) : null}
+                        <i className="fa-regular fa-copy" />
+                        <span className="ml-2">{copied ? "Copiado" : "Copiar link"}</span>
+                    </button>
+
+                    {isMe ? (
+                        <Link
+                            href={route("profile.edit")}
+                            className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50"
+                            title="Configurações do perfil"
+                        >
+                            <i className="fa-solid fa-gear" />
+                        </Link>
+                    ) : null}
+                </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -48,9 +83,7 @@ export default function Show({ user, viewer, stats, articles = [] }) {
 
                 <div className="rounded-lg border bg-white p-4">
                     <div className="text-sm text-gray-500">Curtidas recebidas</div>
-                    <div className="mt-1 text-2xl font-semibold">
-                        {stats.total_likes_received}
-                    </div>
+                    <div className="mt-1 text-2xl font-semibold">{stats.total_likes_received}</div>
                 </div>
             </div>
 
@@ -70,9 +103,7 @@ export default function Show({ user, viewer, stats, articles = [] }) {
                                         <div className="font-medium">{article.title}</div>
 
                                         <div className="mt-1 text-sm text-gray-500 flex flex-wrap gap-x-4">
-                                            <div>
-                                                Categoria: {article.category?.name ?? "—"}
-                                            </div>
+                                            <div>Categoria: {article.category?.name ?? "—"}</div>
 
                                             <div>
                                                 Publicado em:{" "}
@@ -92,12 +123,12 @@ export default function Show({ user, viewer, stats, articles = [] }) {
                         ))}
                     </div>
                 ) : (
-                    <div className="rounded-lg border bg-white p-4 text-sm text-gray-500">
-                        Este usuário ainda não publicou nenhum artigo.
+                    <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">
+                        <div className="font-medium text-gray-700">Nada por aqui ainda</div>
+                        <div className="mt-1">Este usuário ainda não publicou nenhum artigo.</div>
                     </div>
                 )}
             </div>
-
         </AppLayout>
     );
 }
