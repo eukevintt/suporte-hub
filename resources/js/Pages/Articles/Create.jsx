@@ -1,6 +1,7 @@
+import { useState } from "react";
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
-import TinyRichTextEditor from "@/Components/TinyRichTextEditor";
+import QuillEditor from "@/Components/QuillEditor";
 
 export default function Create({ categories, tags }) {
     const form = useForm({
@@ -97,11 +98,10 @@ export default function Create({ categories, tags }) {
                 <div>
                     <label className="block text-sm font-medium">Content</label>
                     <div className="mt-1">
-                        <TinyRichTextEditor
+                        <QuillEditor
                             value={form.data.content}
                             onChange={(html) => form.setData("content", html)}
                         />
-
                     </div>
                     {form.errors.content ? <div className="mt-1 text-sm text-red-600">{form.errors.content}</div> : null}
                 </div>
