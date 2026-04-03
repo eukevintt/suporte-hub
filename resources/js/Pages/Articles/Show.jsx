@@ -1,7 +1,7 @@
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { useMemo, useState } from "react";
-import TinyRichTextEditor from "@/Components/TinyRichTextEditor";
+import QuillEditor from "@/Components/QuillEditor";
 
 export default function Show({ article, categories, tagsList, comments = [], canEdit = false }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -235,7 +235,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                         <div>
                             <label className="block text-sm font-medium">Content</label>
                             <div className="mt-1">
-                                <TinyRichTextEditor
+                                <QuillEditor
                                     articleId={article.id}
                                     value={form.data.content}
                                     onChange={(html) => form.setData("content", html)}

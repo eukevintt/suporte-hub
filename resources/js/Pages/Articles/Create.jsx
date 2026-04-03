@@ -99,6 +99,7 @@ export default function Create({ categories, tags }) {
                     <label className="block text-sm font-medium">Content</label>
                     <div className="mt-1">
                         <QuillEditor
+                            articleId={null}
                             value={form.data.content}
                             onChange={(html) => form.setData("content", html)}
                         />
