@@ -265,7 +265,27 @@ export default function Show({ article, categories, tagsList, comments = [], can
                                 [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-gray-900 [&_pre]:p-3 [&_pre]:text-gray-100
                                 [&_h1]:my-4 [&_h1]:text-2xl [&_h1]:font-semibold
                                 [&_h2]:my-4 [&_h2]:text-xl [&_h2]:font-semibold
-                                [&_h3]:my-3 [&_h3]:text-lg [&_h3]:font-semibold"
+                                [&_h3]:my-3 [&_h3]:text-lg [&_h3]:font-semibold
+                                [&_img]:my-4
+                                [&_img]:h-auto
+                                [&_img]:max-w-full
+                                [&_img[data-size='small']]:w-[200px]
+                                [&_img[data-size='medium']]:w-[400px]
+                                [&_img[data-size='large']]:w-full
+                                [&_.ql-align-center]:text-center
+                                [&_.ql-align-right]:text-right
+                                [&_.ql-align-justify]:text-justify
+                                [&_iframe]:my-4
+                                [&_iframe]:h-[315px]
+                                [&_iframe]:w-full
+                                [&_iframe]:max-w-full
+                                [&_iframe]:rounded
+                                [&_img]:block
+                                [&_img[data-align='left']]:ml-0
+                                [&_img[data-align='left']]:mr-auto
+                                [&_img[data-align='center']]:mx-auto
+                                [&_img[data-align='right']]:ml-auto
+                                [&_img[data-align='right']]:mr-0"
                             dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
                         />
 
