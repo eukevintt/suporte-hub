@@ -7,6 +7,7 @@ export default function Index({
     pendingReview = [],
     canReview = false,
     canDeleteArticles = false,
+    hasMorePublishedArticles = false,
 }) {
     const [pending, setPending] = useState(pendingReview ?? []);
 
@@ -240,6 +241,16 @@ export default function Index({
                             ) : null}
                         </tbody>
                     </table>
+                    {hasMorePublishedArticles ? (
+                        <div className="border-t px-4 py-3">
+                            <Link
+                                href={route("articles.all")}
+                                className="text-sm font-medium text-gray-900 underline hover:text-gray-700"
+                            >
+                                Ver todos os artigos
+                            </Link>
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </AppLayout>

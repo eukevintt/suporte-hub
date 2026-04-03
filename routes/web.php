@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
+        Route::get('/articles/all', [ArticlesController::class, 'all'])->name('articles.all');
 
         Route::get('/articles/create', [ArticlesController::class, 'create'])->name('articles.create');
         Route::get('/articles/{article:slug}', [ArticlesController::class, 'show'])->name('articles.show');

@@ -14,6 +14,18 @@ export default function Articles({ user, articles }) {
     const items = articles?.data ?? [];
     const links = articles?.links ?? [];
 
+    const normalizeLabel = (label) => {
+        if (label.includes("Previous") || label.includes("pagination.previous")) {
+            return "Anterior";
+        }
+
+        if (label.includes("Next") || label.includes("pagination.next")) {
+            return "Próxima";
+        }
+
+        return label;
+    };
+
     return (
         <AppLayout title={`Artigos de ${user.name}`}>
             <Head title={`Artigos de ${user.name}`} />
@@ -104,15 +116,18 @@ export default function Articles({ user, articles }) {
                                             href={link.url || "#"}
                                             preserveScroll
                                             className={`rounded-md border px-3 py-2 text-sm ${link.active
-                                                ? "border-gray-900 bg-gray-900 text-white"
-                                                : link.url
-                                                    ? "border-gray-200 bg-white hover:bg-gray-50"
-                                                    : "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400"
+                                                    ? "border-gray-900 bg-gray-900 text-white"
+                                                    : link.url
+                                                        ? "border-gray-200 bg-white hover:bg-gray-50"
+                                                        : "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400"
                                                 }`}
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
+                                        >
+                                            <span
+                                                dangerouslySetInnerHTML={{
+                                                    __html: normalizeLabel(link.label),
+                                                }}
+                                            />
+                                        </Link>
                                     ))}
                                 </div>
                             ) : null}

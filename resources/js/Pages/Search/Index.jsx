@@ -5,6 +5,18 @@ export default function Index({ query, articles }) {
     const items = articles?.data ?? [];
     const links = articles?.links ?? [];
 
+    const normalizeLabel = (label) => {
+        if (label.includes("Previous") || label.includes("pagination.previous")) {
+            return "Anterior";
+        }
+
+        if (label.includes("Next") || label.includes("pagination.next")) {
+            return "Próxima";
+        }
+
+        return label;
+    };
+
     return (
         <AppLayout title="Busca">
             <Head title="Busca" />
@@ -52,10 +64,13 @@ export default function Index({ query, articles }) {
                                         ? "border-gray-200 bg-white hover:bg-gray-50"
                                         : "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400"
                                 }`}
-                            dangerouslySetInnerHTML={{
-                                __html: link.label,
-                            }}
-                        />
+                        >
+                            <span
+                                dangerouslySetInnerHTML={{
+                                    __html: normalizeLabel(link.label),
+                                }}
+                            />
+                        </Link>
                     ))}
                 </div>
             ) : null}

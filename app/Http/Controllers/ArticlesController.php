@@ -47,24 +47,28 @@ class ArticlesController extends Controller
                 ]);
         }
 
-        $query = $baseQuery()->where('status', 'published');
+        $publishedQuery = $baseQuery()->where('status', 'published');
 
         if ($search !== '') {
-            $query->where('title', 'like', '%' . $search . '%');
+            $publishedQuery->where('title', 'like', '%' . $search . '%');
         }
 
-        $articles = $query->get([
-            'id',
-            'title',
-            'slug',
-            'excerpt',
-            'content',
-            'status',
-            'category_id',
-            'author_id',
-            'created_at',
-            'updated_at',
-        ]);
+        $publishedTotal = (clone $publishedQuery)->count();
+
+        $articles = $publishedQuery
+            ->limit(10)
+            ->get([
+                'id',
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'status',
+                'category_id',
+                'author_id',
+                'created_at',
+                'updated_at',
+            ]);
 
         $likedIds = [];
         if ($user) {
@@ -87,6 +91,7 @@ class ArticlesController extends Controller
             'pendingReview' => $pendingReview,
             'canReview' => $isReviewer,
             'canDeleteArticles' => Gate::allows('delete-articles'),
+            'hasMorePublishedArticles' => $publishedTotal > 10,
 
             'categories' => Category::query()
                 ->orderBy('name')
@@ -266,6 +271,39 @@ class ArticlesController extends Controller
         $article->forceDelete();
 
         return back()->with('success', 'Article rejected.');
+    }
+
+    public function all(Request $request): Response
+    {
+        $articles = Article::query()
+            ->with(['category:id,name', 'tags:id,name', 'author:id,name'])
+            ->withCount('likes')
+            ->where('status', 'published')
+            ->latest()
+            ->paginate(10)
+            ->through(function ($article) {
+                return [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'excerpt' => $article->excerpt,
+                    'content' => $article->content,
+                    'status' => $article->status,
+                    'category_id' => $article->category_id,
+                    'author_id' => $article->author_id,
+                    'created_at' => $article->created_at,
+                    'updated_at' => $article->updated_at,
+                    'category' => $article->category,
+                    'tags' => $article->tags,
+                    'author' => $article->author,
+                    'likes_count' => $article->likes_count,
+                ];
+            });
+
+        return Inertia::render('Articles/All', [
+            'articles' => $articles,
+            'canDeleteArticles' => Gate::allows('delete-articles'),
+        ]);
     }
 
     private function validated(Request $request, ?int $ignoreId = null): array
