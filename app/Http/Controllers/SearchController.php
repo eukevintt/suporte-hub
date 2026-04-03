@@ -11,28 +11,32 @@ class SearchController extends Controller
 {
     public function index(Request $request): Response
     {
-        $q = $request->query('q');
+        $q = trim((string) $request->query('q', ''));
 
         $articles = Article::query()
             ->where('status', 'published')
-            ->when($q, function ($query) use ($q) {
+            ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($q2) use ($q) {
-                $q2->where('title', 'like', "%{$q}%")
-            ->orWhere('excerpt', 'like', "%{$q}%")
-            ->orWhere('content', 'like', "%{$q}%");
+                    $q2->where('title', 'like', "%{$q}%")
+                        ->orWhere('excerpt', 'like', "%{$q}%")
+                        ->orWhere('content', 'like', "%{$q}%");
                 });
             })
             ->latest()
-            ->get([
-                'id',
-                'title',
-                'slug',
-                'excerpt',
-                'created_at',
-            ]);
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function ($article) {
+                return [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'excerpt' => $article->excerpt,
+                    'created_at' => $article->created_at,
+                ];
+            });
 
         return Inertia::render('Search/Index', [
-            'query' => $q,
+            'query' => $q !== '' ? $q : null,
             'articles' => $articles,
         ]);
     }

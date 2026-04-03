@@ -133,9 +133,9 @@ export default function Show({ article, categories, tagsList, comments = [], can
             <Head title={article?.title ?? "Artigo"} />
 
             <div className="flex items-center justify-between gap-4">
-                <Link href={route("articles.index")} className="text-sm underline">
+                <button onClick={() => window.history.back()} className="text-sm underline">
                     Voltar
-                </Link>
+                </button>
                 {canEdit ? (
                     <button
                         type="button"
