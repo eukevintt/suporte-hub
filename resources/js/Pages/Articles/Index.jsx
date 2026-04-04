@@ -113,18 +113,16 @@ export default function Index({
                             <div className="text-sm font-semibold">Fila de revisão</div>
                             <div className="text-xs text-gray-500">Mostrando até 5 pendentes.</div>
                         </div>
-                        <div className="text-xs text-gray-500">Status: pending_review</div>
                     </div>
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-2">Title</th>
-                                    <th className="px-4 py-2">Category</th>
+                                    <th className="px-4 py-2">Título</th>
+                                    <th className="px-4 py-2">Categoria</th>
                                     <th className="px-4 py-2">Tags</th>
-                                    <th className="px-4 py-2">Author</th>
-                                    <th className="px-4 py-2"></th>
+                                    <th className="px-4 py-2">Autor</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -180,19 +178,17 @@ export default function Index({
             <div className="mt-6 rounded-lg border bg-white">
                 <div className="border-b px-4 py-3">
                     <div className="text-sm font-semibold">Publicados</div>
-                    <div className="text-xs text-gray-500">Lista principal (published).</div>
+                    <div className="text-xs text-gray-500">Mostrando até 10 publicados.</div>
                 </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-4 py-2">Title</th>
-                                <th className="px-4 py-2">Category</th>
+                                <th className="px-4 py-2">Título</th>
+                                <th className="px-4 py-2">Categoria</th>
                                 <th className="px-4 py-2">Tags</th>
-                                <th className="px-4 py-2">Author</th>
-                                <th className="px-4 py-2">Status</th>
-                                <th className="px-4 py-2"></th>
+                                <th className="px-4 py-2">Autor</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -211,11 +207,6 @@ export default function Index({
                                         {(a.tags ?? []).length ? a.tags.map((t) => t.name).join(", ") : "-"}
                                     </td>
                                     <td className="px-4 py-2">{a.author?.name ?? "-"}</td>
-                                    <td className="px-4 py-2">
-                                        <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium border">
-                                            {a.status}
-                                        </span>
-                                    </td>
                                     <td className="px-4 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                                         <div className="flex justify-end gap-3">
                                             {canDeleteArticles ? (
