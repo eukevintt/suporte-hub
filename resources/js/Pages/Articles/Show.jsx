@@ -177,7 +177,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                 {isEditing ? (
                     <form onSubmit={submit} className="mt-6 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium">Title</label>
+                            <label className="block text-sm font-medium">Título</label>
                             <input
                                 className="mt-1 block w-full rounded border-gray-300"
                                 value={form.data.title}
@@ -187,7 +187,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium">Category</label>
+                            <label className="block text-sm font-medium">Categoria</label>
                             <select
                                 className="mt-1 block w-full rounded border-gray-300"
                                 value={form.data.category_id}
@@ -223,7 +223,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium">Excerpt (opcional)</label>
+                            <label className="block text-sm font-medium">Resumo (opcional)</label>
                             <input
                                 className="mt-1 block w-full rounded border-gray-300"
                                 value={form.data.excerpt}
@@ -233,7 +233,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium">Content</label>
+                            <label className="block text-sm font-medium">Conteúdo</label>
                             <div className="mt-1">
                                 <QuillEditor
                                     articleId={article.id}
