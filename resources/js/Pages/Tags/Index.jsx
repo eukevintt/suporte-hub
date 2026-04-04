@@ -43,8 +43,6 @@ export default function Index({ auth, tags }) {
         });
     };
 
-
-
     const destroy = (id) => {
         if (!confirm("Excluir tag?")) return;
         createForm.delete(route("tags.destroy", id), { preserveScroll: true });
@@ -57,9 +55,16 @@ export default function Index({ auth, tags }) {
         >
             <Head title="Tags" />
 
+            <div>
+                <h2 className="text-lg font-semibold">Tags</h2>
+                <p className="text-sm text-gray-500">Gerencie suas tags aqui.</p>
+            </div>
+
             <div className="py-6">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
-                    <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6">
+                <div className="max-w-7xl space-y-6">
+
+                    {/* Nova Tag */}
+                    <div className="rounded-lg border border-gray-200 bg-white-50 p-4">
                         <h3 className="text-lg font-medium mb-4">Nova tag</h3>
 
                         <form onSubmit={submitCreate} className="flex flex-col sm:flex-row gap-3">
@@ -67,7 +72,7 @@ export default function Index({ auth, tags }) {
                                 <input
                                     value={createForm.data.name}
                                     onChange={(e) => createForm.setData("name", e.target.value)}
-                                    className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                    className="mt-1 w-full rounded-md border px-3 py-2"
                                     placeholder="Nome da tag"
                                 />
                                 {createForm.errors.name && (
@@ -78,20 +83,21 @@ export default function Index({ auth, tags }) {
                             <button
                                 type="submit"
                                 disabled={createForm.processing}
-                                className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-60"
+                                className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
                             >
                                 Criar
                             </button>
                         </form>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6">
+                    {/* Lista */}
+                    <div className="rounded-lg border border-gray-200 bg-white-50 p-4">
                         <h3 className="text-lg font-medium mb-4">Lista</h3>
 
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-sm">
                                 <thead>
-                                    <tr className="text-left border-b border-gray-200 dark:border-gray-700">
+                                    <tr className="text-left border-b border-gray-400 text-gray-600">
                                         <th className="py-3 pr-4">Nome</th>
                                         <th className="py-3 pr-4">Slug</th>
                                         <th className="py-3 w-56">Ações</th>
@@ -103,17 +109,17 @@ export default function Index({ auth, tags }) {
                                         const isEditing = editingId === t.id;
 
                                         return (
-                                            <tr key={t.id} className="border-b border-gray-100 dark:border-gray-700/60">
+                                            <tr key={t.id} className="border-b border-gray-400">
                                                 <td className="py-3 pr-4">
                                                     {!isEditing ? (
-                                                        <span className="text-gray-900 dark:text-gray-100">{t.name}</span>
+                                                        <span className="text-gray-500">{t.name}</span>
                                                     ) : (
                                                         <form onSubmit={(e) => submitUpdate(e, t.id)} className="flex gap-2">
                                                             <div className="flex-1">
                                                                 <input
                                                                     value={editForm.data.name}
                                                                     onChange={(e) => editForm.setData("name", e.target.value)}
-                                                                    className="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                                                    className="w-full rounded-md border-gray-300 text-gray-500"
                                                                 />
                                                                 {editForm.errors.name && (
                                                                     <div className="mt-2 text-sm text-red-500">{editForm.errors.name}</div>
@@ -123,7 +129,7 @@ export default function Index({ auth, tags }) {
                                                             <button
                                                                 type="submit"
                                                                 disabled={editForm.processing}
-                                                                className="rounded-md bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
+                                                                className="rounded bg-green-600 px-2 text-white hover:bg-green-800"
                                                             >
                                                                 Salvar
                                                             </button>
@@ -131,7 +137,7 @@ export default function Index({ auth, tags }) {
                                                             <button
                                                                 type="button"
                                                                 onClick={cancelEdit}
-                                                                className="rounded-md bg-gray-200 px-3 py-2 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                                                                className="rounded px-1 bg-slate-200 text-slate-700 hover:bg-slate-300"
                                                             >
                                                                 Cancelar
                                                             </button>
@@ -139,7 +145,7 @@ export default function Index({ auth, tags }) {
                                                     )}
                                                 </td>
 
-                                                <td className="py-3 pr-4 text-gray-600 dark:text-gray-300">{t.slug}</td>
+                                                <td className="py-3 pr-4 text-gray-500">{t.slug}</td>
 
                                                 <td className="py-3">
                                                     {!isEditing ? (
@@ -147,14 +153,14 @@ export default function Index({ auth, tags }) {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => startEdit(t.id)}
-                                                                className="rounded-md bg-gray-200 px-3 py-2 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                                                                className="text-slate-700 hover:text-slate-900"
                                                             >
                                                                 Editar
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => destroy(t.id)}
-                                                                className="rounded-md bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+                                                                className="text-red-600 hover:text-red-800"
                                                             >
                                                                 Excluir
                                                             </button>
@@ -167,7 +173,7 @@ export default function Index({ auth, tags }) {
 
                                     {(!tags || tags.length === 0) && (
                                         <tr>
-                                            <td colSpan="3" className="py-6 text-gray-600 dark:text-gray-300">
+                                            <td colSpan="3" className="py-6 text-gray-600">
                                                 Nenhuma tag cadastrada.
                                             </td>
                                         </tr>

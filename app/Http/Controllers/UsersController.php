@@ -27,8 +27,26 @@ final class UsersController extends Controller
         return Inertia::render('Users/Index', [
             'users' => $usersQuery
                 ->paginate(10)
+                ->through(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'role_label' => $this->roleLabel($user->role),
+                        'permissions' => $user->permissions,
+                        'must_change_password' => $user->must_change_password,
+                        'created_at' => $user->created_at,
+                        'username' => $user->username,
+                    ];
+                })
                 ->withQueryString(),
-            'roles' => $this->allowedRolesFor($actorRole),
+            'roles' => collect($this->allowedRolesFor($actorRole))
+                ->map(fn ($role) => [
+                    'value' => $role,
+                    'label' => $this->roleLabel($role),
+                ])
+                ->values(),
         ]);
     }
 
@@ -81,7 +99,12 @@ final class UsersController extends Controller
 
         return Inertia::render('Users/Edit', [
             'user' => $user->only(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'username']),
-            'roles' => $this->allowedRolesFor($actor->role),
+            'roles' => collect($this->allowedRolesFor($actor->role))
+                ->map(fn ($role) => [
+                    'value' => $role,
+                    'label' => $this->roleLabel($role),
+                ])
+                ->values(),
         ]);
     }
 
@@ -138,7 +161,7 @@ final class UsersController extends Controller
 
         $user->update($payload);
 
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso.');
     }
 
     public function destroy(User $user, Request $request)
@@ -146,16 +169,16 @@ final class UsersController extends Controller
         $authId = $request->user()->id;
 
         if ($user->id === $authId) {
-            return redirect()->route('users.index');
+            return redirect()->route('users.index')->with('error', 'Você não pode excluir sua própria conta.');
         }
 
         if ($user->role === 'superadmin') {
-            return redirect()->route('users.index');
+            return redirect()->route('users.index')->with('error', 'Você não pode excluir um usuário com o cargo de superadmin.');
         }
 
         $user->delete();
 
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso.');
     }
 
     private function generateUniqueUsernameFromEmail(string $email): string
@@ -181,7 +204,20 @@ final class UsersController extends Controller
     private function allowedRolesFor(string $actorRole): array
     {
         return $actorRole === 'superadmin'
-            ? ['admin', 'n1', 'n2', 'n3']
-            : ['n1', 'n2', 'n3'];
+            ? ['admin', 'n1', 'n2', 'n3', 'infra']
+            : ['n1', 'n2', 'n3', 'infra'];
+    }
+
+    private function roleLabel(string $role): string
+    {
+        return match ($role) {
+            'superadmin' => 'Super Administrador',
+            'admin' => 'Administrador',
+            'n1' => 'Suporte N1',
+            'n2' => 'Suporte N2',
+            'n3' => 'Suporte N3',
+            'infra' => 'Infraestrutura',
+            default => $role,
+        };
     }
 }

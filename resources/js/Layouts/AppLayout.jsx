@@ -112,7 +112,7 @@ export default function AppLayout({ title, children, query }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-900">
+        <div className="min-h-screen bg-white text-gray-900">
             <div className="flex min-h-screen">
                 <aside className="h-screen hidden md:flex md:w-64 md:flex-col border-r border-gray-200 bg-white">
                     <div className="h-16 flex items-center px-5 border-b border-gray-200">
@@ -250,14 +250,9 @@ export default function AppLayout({ title, children, query }) {
                         </div>
                     )}
 
-                    <main className="flex-1 p-4 md:p-6">
-                        <div className="mb-5">
-                            <h1 className="text-xl font-semibold">{title}</h1>
-                            <p className="text-sm text-gray-500">Página placeholder — Em construção</p>
-                        </div>
 
-                        <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">{children}</div>
-                    </main>
+                    <div className=" p-4 md:p-6">{children}</div>
+
                 </div>
             </div>
         </div>

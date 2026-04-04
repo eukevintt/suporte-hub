@@ -30,7 +30,7 @@ class TagsController extends Controller
             'slug' => $slug,
         ]);
 
-        return redirect()->route('tags.index');
+        return redirect()->route('tags.index')->with('success', 'Tag criada com sucesso.');
     }
 
     public function update(Request $request, Tag $tag)

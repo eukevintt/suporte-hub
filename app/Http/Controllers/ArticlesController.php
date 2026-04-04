@@ -262,7 +262,7 @@ class ArticlesController extends Controller
             'status' => 'published',
         ]);
 
-        return back()->with('success', 'Artigo aprovado com sucesso.');
+        return back()->with('success', 'Artigo publicado com sucesso.');
     }
 
     public function reject(Article $article): RedirectResponse
@@ -271,7 +271,7 @@ class ArticlesController extends Controller
 
         $article->forceDelete();
 
-        return back()->with('success', 'Artigo rejeitado com sucesso.');
+        return back()->with('success', 'Artigo removido com sucesso.');
     }
 
     public function all(Request $request): Response

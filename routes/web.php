@@ -29,6 +29,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['password.changed'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('/utilities', function () {
+            return Inertia::render('Utilities/Index');
+        })->name('utilities.index');
+
         Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
         Route::get('/articles/all', [ArticlesController::class, 'all'])->name('articles.all');
 

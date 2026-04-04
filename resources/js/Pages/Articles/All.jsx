@@ -57,11 +57,10 @@ export default function All({ articles, canDeleteArticles = false }) {
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-4 py-2">Title</th>
-                                <th className="px-4 py-2">Category</th>
-                                <th className="px-4 py-2">Tags</th>
-                                <th className="px-4 py-2">Author</th>
-                                <th className="px-4 py-2">Status</th>
+                                <th>Título</th>
+                                <th>Categoria</th>
+                                <th>Tags</th>
+                                <th>Autor</th>
                                 <th className="px-4 py-2"></th>
                             </tr>
                         </thead>
@@ -81,11 +80,6 @@ export default function All({ articles, canDeleteArticles = false }) {
                                         {(a.tags ?? []).length ? a.tags.map((t) => t.name).join(", ") : "-"}
                                     </td>
                                     <td className="px-4 py-2">{a.author?.name ?? "-"}</td>
-                                    <td className="px-4 py-2">
-                                        <span className="inline-flex items-center rounded border px-2 py-1 text-xs font-medium">
-                                            {a.status}
-                                        </span>
-                                    </td>
                                     <td
                                         className="px-4 py-2 text-right"
                                         onClick={(e) => e.stopPropagation()}

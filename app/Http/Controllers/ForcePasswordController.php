@@ -16,6 +16,10 @@ public function update(Request $request)
 {
     $request->validate([
         'password' => ['required', 'confirmed', 'min:8'],
+    ], [
+        'password.required' => 'A senha é obrigatória.',
+        'password.confirmed' => 'As senhas não coincidem.',
+        'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
     ]);
 
     $user = auth()->user();
