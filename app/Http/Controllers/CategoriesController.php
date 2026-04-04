@@ -30,7 +30,7 @@ class CategoriesController extends Controller
             'slug' => $slug,
         ]);
 
-        return redirect()->route('categories.index');
+        return redirect()->route('categories.index')->with('success', 'Categoria criada com sucesso.');
     }
 
     public function update(Request $request, Category $category)
@@ -47,7 +47,7 @@ class CategoriesController extends Controller
             'slug' => $slug,
         ]);
 
-        return redirect()->route('categories.index');
+        return redirect()->route('categories.index')->with('success', 'Categoria atualizada com sucesso.');
     }
 
     public function destroy(Category $category)

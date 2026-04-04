@@ -222,7 +222,7 @@ class ArticlesController extends Controller
             return redirect()->route('articles.index', ['submitted' => 'pending_review']);
         }
 
-        return redirect()->route('articles.index');
+        return redirect()->route('articles.index')->with('success', 'Artigo criado com sucesso.');
     }
 
     public function update(Request $request, Article $article): RedirectResponse
@@ -241,7 +241,7 @@ class ArticlesController extends Controller
 
         $article->tags()->sync($data['tag_ids'] ?? []);
 
-        return redirect()->route('articles.show', $article->slug);
+        return redirect()->route('articles.show', $article->slug)->with('success', 'Artigo atualizado com sucesso.');
     }
 
     public function destroy(Article $article): RedirectResponse
@@ -251,7 +251,7 @@ class ArticlesController extends Controller
         Storage::disk('public')->deleteDirectory("articles/{$article->id}");
         $article->forceDelete();
 
-        return redirect()->route('articles.index');
+        return redirect()->route('articles.index')->with('success', 'Artigo excluído com sucesso.');
     }
 
     public function approve(Article $article): RedirectResponse
@@ -262,7 +262,7 @@ class ArticlesController extends Controller
             'status' => 'published',
         ]);
 
-        return back()->with('success', 'Article published.');
+        return back()->with('success', 'Artigo aprovado com sucesso.');
     }
 
     public function reject(Article $article): RedirectResponse
@@ -271,7 +271,7 @@ class ArticlesController extends Controller
 
         $article->forceDelete();
 
-        return back()->with('success', 'Article rejected.');
+        return back()->with('success', 'Artigo rejeitado com sucesso.');
     }
 
     public function all(Request $request): Response
