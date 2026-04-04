@@ -152,7 +152,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                 <h2 className="text-2xl font-semibold">{article.title}</h2>
 
                 <div>
-                    <span className="font-medium">Autor:</span> {article.author?.name ?? "—"}
+                    <span className="font-medium">Autor:</span> <a href={route("profiles.show", article.author.username)} className="text-blue-800  hover:text-blue-700 hover:underline"> {article.author?.name ?? "—"}</a>
                 </div>
 
                 <div className="mt-2 text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-1">

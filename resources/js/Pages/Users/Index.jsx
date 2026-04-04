@@ -1,5 +1,5 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, useForm, usePage, Link } from "@inertiajs/react";
+import { Head, useForm, usePage, Link, router } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 
 export default function Index({ users, roles }) {
@@ -34,6 +34,12 @@ export default function Index({ users, roles }) {
     const hasReview = (u) => {
         const perms = u.permissions ?? [];
         return Array.isArray(perms) && perms.includes("review-articles");
+    };
+
+    const handleDelete = (username) => {
+        if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+
+        router.delete(route("users.destroy", username));
     };
 
     return (
@@ -172,11 +178,21 @@ export default function Index({ users, roles }) {
                                             <td className="px-5 py-3 text-right">
                                                 <div className="flex justify-end gap-3">
                                                     <Link
-                                                        href={route("users.edit", u.id)}
+                                                        href={route("users.edit", u.username)}
                                                         className="text-slate-700 hover:text-slate-900"
                                                     >
                                                         Editar
                                                     </Link>
+
+                                                    {u.role !== "superadmin" && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDelete(u.username)}
+                                                            className="text-red-600 hover:text-red-800">
+                                                            Excluir
+                                                        </button>
+                                                    )}
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -217,6 +233,6 @@ export default function Index({ users, roles }) {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </AppLayout >
     );
 }

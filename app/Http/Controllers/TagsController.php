@@ -52,9 +52,17 @@ class TagsController extends Controller
 
     public function destroy(Tag $tag)
     {
+        if ($tag->articles()->exists()) {
+            return redirect()
+                ->route('tags.index')
+                ->with('error', 'Para excluir esta tag, é necessário excluir ou desvincular todos os artigos relacionados primeiro.');
+        }
+
         $tag->delete();
 
-        return redirect()->route('tags.index');
+        return redirect()
+            ->route('tags.index')
+            ->with('success', 'Tag excluída com sucesso.');
     }
 
     private function uniqueSlug(string $modelClass, string $baseSlug, ?int $ignoreId = null): string

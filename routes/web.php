@@ -63,6 +63,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/search', [SearchController::class, 'index'])->name('search.index');
         Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
 
+        Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
+
         Route::get('/tags', [TagsController::class, 'index'])->name('tags.index');
         Route::post('/tags', [TagsController::class, 'store'])->name('tags.store');
         Route::put('/tags/{tag}', [TagsController::class, 'update'])->name('tags.update');
@@ -77,13 +82,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
             Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
             Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
-        });
-
-        Route::middleware(['can:admin'])->group(function () {
-            Route::get('/categories', [CategoriesController::class, 'index'])->name('categories.index');
-            Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
-            Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
-            Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
         });
 
         Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('profiles.show');

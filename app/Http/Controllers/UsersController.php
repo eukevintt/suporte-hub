@@ -17,7 +17,7 @@ final class UsersController extends Controller
         $actorRole = $actor->role;
 
         $usersQuery = User::query()
-            ->select(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'created_at'])
+            ->select(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'created_at', 'username'])
             ->orderBy('id', 'desc');
 
         if ($actorRole === 'admin') {
@@ -80,7 +80,7 @@ final class UsersController extends Controller
         }
 
         return Inertia::render('Users/Edit', [
-            'user' => $user->only(['id', 'name', 'email', 'role', 'permissions', 'must_change_password']),
+            'user' => $user->only(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'username']),
             'roles' => $this->allowedRolesFor($actor->role),
         ]);
     }
@@ -101,7 +101,7 @@ final class UsersController extends Controller
             'role' => ['required', Rule::in($allowedRoles)],
             'must_change_password' => ['required', 'boolean'],
             'can_review_articles' => ['sometimes', 'boolean'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         $payload = [

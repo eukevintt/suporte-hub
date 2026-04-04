@@ -30,7 +30,7 @@ export default function Edit({ user, roles }) {
 
     const submit = (e) => {
         e.preventDefault();
-        put(route("users.update", user.id));
+        put(route("users.update", user.username));
     };
 
     return (

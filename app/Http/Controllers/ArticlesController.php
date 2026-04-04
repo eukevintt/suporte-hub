@@ -119,7 +119,7 @@ class ArticlesController extends Controller
 
     public function show(Request $request, Article $article): Response
     {
-        $article->load(['category:id,name', 'tags:id,name', 'author:id,name']);
+        $article->load(['category:id,name', 'tags:id,name', 'author:id,name,username']);
         $article->loadCount('likes');
 
         $user = $request->user();
@@ -175,6 +175,7 @@ class ArticlesController extends Controller
                 'author' => $article->author,
                 'likes_count' => $article->likes_count,
                 'liked_by_me' => $likedByMe,
+                'username' => $article->author->username
             ],
             'comments' => $comments,
 

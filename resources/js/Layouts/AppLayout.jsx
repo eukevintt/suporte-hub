@@ -4,14 +4,18 @@ import { Link, usePage, router } from "@inertiajs/react";
 const nav = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Artigos", href: "/articles" },
-    { label: "Categorias", href: "/categories", adminOnly: true },
+    { label: "Links", href: "/links" },
+    { label: "Utilidades", href: "/utilities" },
+    { label: "Categorias", href: "/categories" },
     { label: "Tags", href: "/tags" },
     { label: "Usuários", href: "/users", adminOnly: true },
 ];
 
 export default function AppLayout({ title, children, query }) {
+
     const { props } = usePage();
     const user = props?.auth?.user;
+    const flash = props?.flash ?? {};
 
     const isAdmin = useMemo(() => {
         const role = String(user?.role ?? "").toLowerCase();
@@ -109,8 +113,8 @@ export default function AppLayout({ title, children, query }) {
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900">
-            <div className="flex">
-                <aside className="hidden md:flex md:w-64 md:flex-col border-r border-gray-200 bg-white">
+            <div className="flex min-h-screen">
+                <aside className="h-screen hidden md:flex md:w-64 md:flex-col border-r border-gray-200 bg-white">
                     <div className="h-16 flex items-center px-5 border-b border-gray-200">
                         <span className="text-lg font-semibold">SuporteHub</span>
                     </div>
@@ -138,7 +142,7 @@ export default function AppLayout({ title, children, query }) {
                     </div>
                 </aside>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col min-h-screen">
                     <header className="h-16 border-b border-gray-200 bg-white">
                         <div className="h-full flex items-center justify-between px-4 md:px-6 gap-4">
                             <div className="md:hidden text-base font-semibold">SuporteHub</div>
@@ -230,7 +234,23 @@ export default function AppLayout({ title, children, query }) {
                         </div>
                     </header>
 
-                    <main className="p-4 md:p-6">
+                    {flash.error && (
+                        <div className="px-4 md:px-6 mt-4">
+                            <div className="rounded-md border border-red-200 bg-red-100 px-4 py-3 text-red-700">
+                                {flash.error}
+                            </div>
+                        </div>
+                    )}
+
+                    {flash.success && (
+                        <div className="px-4 md:px-6 mt-4">
+                            <div className="rounded-md border border-green-200 bg-green-100 px-4 py-3 text-green-700">
+                                {flash.success}
+                            </div>
+                        </div>
+                    )}
+
+                    <main className="flex-1 p-4 md:p-6">
                         <div className="mb-5">
                             <h1 className="text-xl font-semibold">{title}</h1>
                             <p className="text-sm text-gray-500">Página placeholder — Em construção</p>

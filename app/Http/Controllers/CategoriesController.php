@@ -52,9 +52,17 @@ class CategoriesController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->articles()->exists()) {
+            return redirect()
+                ->route('categories.index')
+                ->with('error', 'Para excluir esta categoria, é necessário excluir ou desvincular todos os artigos relacionados primeiro.');
+        }
+
         $category->delete();
 
-        return redirect()->route('categories.index');
+        return redirect()
+            ->route('categories.index')
+            ->with('success', 'Categoria excluída com sucesso.');
     }
 
     private function uniqueSlug(string $modelClass, string $baseSlug, ?int $ignoreId = null): string
