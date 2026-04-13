@@ -16,6 +16,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserLookupController;
 use App\Http\Controllers\ServerMigrationController;
+use App\Http\Controllers\LinkController;
 
 Route::redirect('/', '/login');
 
@@ -58,7 +59,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::middleware(['can:admin'])->group(function () {
             Route::delete('/articles/{article}', [ArticlesController::class, 'destroy'])->name('articles.destroy');
+
+            Route::get('/links/create', [LinkController::class, 'create'])->name('links.create');
+            Route::post('/links', [LinkController::class, 'store'])->name('links.store');
         });
+
+        Route::get('/links', [LinkController::class, 'index'])->name('links.index');
 
         Route::post('/articles/{article}/like', [ArticleLikeController::class, 'store'])->name('articles.like');
         Route::delete('/articles/{article}/like', [ArticleLikeController::class, 'destroy'])->name('articles.unlike');
