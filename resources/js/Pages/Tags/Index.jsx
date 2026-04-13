@@ -149,22 +149,28 @@ export default function Index({ auth, tags }) {
 
                                                 <td className="py-3">
                                                     {!isEditing ? (
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => startEdit(t.id)}
-                                                                className="text-slate-700 hover:text-slate-900"
-                                                            >
-                                                                Editar
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => destroy(t.id)}
-                                                                className="text-red-600 hover:text-red-800"
-                                                            >
-                                                                Excluir
-                                                            </button>
-                                                        </div>
+                                                        t.is_protected ? (
+                                                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                                                Protegida
+                                                            </span>
+                                                        ) : (
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => startEdit(t.id)}
+                                                                    className="text-slate-700 hover:text-slate-900"
+                                                                >
+                                                                    Editar
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => destroy(t.id)}
+                                                                    className="text-red-600 hover:text-red-800"
+                                                                >
+                                                                    Excluir
+                                                                </button>
+                                                            </div>
+                                                        )
                                                     ) : null}
                                                 </td>
                                             </tr>

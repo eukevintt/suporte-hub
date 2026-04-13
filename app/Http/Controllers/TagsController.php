@@ -12,7 +12,7 @@ class TagsController extends Controller
     public function index()
     {
         return Inertia::render('Tags/Index', [
-            'tags' => Tag::query()->orderBy('name')->get(['id', 'name', 'slug', 'created_at']),
+            'tags' => Tag::query()->orderBy('name')->get(['id', 'name', 'slug', 'created_at', 'is_protected']),
         ]);
     }
 
@@ -35,6 +35,12 @@ class TagsController extends Controller
 
     public function update(Request $request, Tag $tag)
     {
+        if ($tag->is_protected) {
+            return redirect()
+                ->route('tags.index')
+                ->with('error', 'Esta tag é protegida pelo sistema e não pode ser editada.');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:tags,name,' . $tag->id],
         ]);
@@ -52,6 +58,12 @@ class TagsController extends Controller
 
     public function destroy(Tag $tag)
     {
+        if ($tag->is_protected) {
+            return redirect()
+                ->route('tags.index')
+                ->with('error', 'Esta tag é protegida pelo sistema e não pode ser excluída.');
+        }
+
         if ($tag->articles()->exists()) {
             return redirect()
                 ->route('tags.index')
