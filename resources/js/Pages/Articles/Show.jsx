@@ -2,6 +2,7 @@ import AppLayout from "@/Layouts/AppLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { useMemo, useState } from "react";
 import QuillEditor from "@/Components/QuillEditor";
+import Select from "react-select";
 
 export default function Show({ article, categories, tagsList, comments = [], canEdit = false }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -22,10 +23,22 @@ export default function Show({ article, categories, tagsList, comments = [], can
         body: "",
     });
 
-    const onTagsChange = (e) => {
-        const selected = Array.from(e.target.selectedOptions).map((o) => Number(o.value));
-        form.setData("tag_ids", selected);
-    };
+    const categoryOptions = categories.map((c) => ({
+        value: c.id,
+        label: c.name,
+    }));
+
+    const tagOptions = tagsList.map((t) => ({
+        value: t.id,
+        label: t.name,
+    }));
+
+    const selectedCategory =
+        categoryOptions.find((option) => option.value === form.data.category_id) ?? null;
+
+    const selectedTags = tagOptions.filter((option) =>
+        form.data.tag_ids.includes(option.value)
+    );
 
     const publishedLabel = useMemo(() => {
         const iso = article.status === "published" ? article.updated_at : article.created_at;
@@ -46,11 +59,11 @@ export default function Show({ article, categories, tagsList, comments = [], can
             return new Intl.DateTimeFormat("pt-BR", {
                 dateStyle: "short",
                 timeStyle: "short",
-            }).format(new Date(article.updated_at));
+            }).format(new Date(iso));
         } catch {
             return "—";
         }
-    }, [article]);
+    }, [article.updated_at]);
 
     const formatCommentDate = (iso) => {
         if (!iso) return "—";
@@ -136,6 +149,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                 <button onClick={() => window.history.back()} className="text-sm underline">
                     Voltar
                 </button>
+
                 {canEdit ? (
                     <button
                         type="button"
@@ -145,17 +159,22 @@ export default function Show({ article, categories, tagsList, comments = [], can
                         {isEditing ? "Cancelar" : "Editar"}
                     </button>
                 ) : null}
-
             </div>
 
             <div className="mt-4">
                 <h2 className="text-2xl font-semibold">{article.title}</h2>
 
                 <div>
-                    <span className="font-medium">Autor:</span> <a href={route("profiles.show", article.author.username)} className="text-blue-800  hover:text-blue-700 hover:underline"> {article.author?.name ?? "—"}</a>
+                    <span className="font-medium">Autor:</span>{" "}
+                    <a
+                        href={route("profiles.show", article.author.username)}
+                        className="text-blue-800 hover:text-blue-700 hover:underline"
+                    >
+                        {article.author?.name ?? "—"}
+                    </a>
                 </div>
 
-                <div className="mt-2 text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                     <div>
                         <span className="font-medium">Categoria:</span> {article.category?.name ?? "—"}
                     </div>
@@ -188,18 +207,18 @@ export default function Show({ article, categories, tagsList, comments = [], can
 
                         <div>
                             <label className="block text-sm font-medium">Categoria</label>
-                            <select
-                                className="mt-1 block w-full rounded border-gray-300"
-                                value={form.data.category_id}
-                                onChange={(e) => form.setData("category_id", e.target.value ? Number(e.target.value) : "")}
-                            >
-                                <option value="">Selecione</option>
-                                {categories.map((c) => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="mt-1">
+                                <Select
+                                    options={categoryOptions}
+                                    value={selectedCategory}
+                                    onChange={(option) =>
+                                        form.setData("category_id", option ? option.value : "")
+                                    }
+                                    isClearable
+                                    placeholder="Selecione a categoria"
+                                    noOptionsMessage={() => "Nenhuma categoria encontrada"}
+                                />
+                            </div>
                             {form.errors.category_id ? (
                                 <div className="mt-1 text-sm text-red-600">{form.errors.category_id}</div>
                             ) : null}
@@ -207,18 +226,22 @@ export default function Show({ article, categories, tagsList, comments = [], can
 
                         <div>
                             <label className="block text-sm font-medium">Tags (opcional)</label>
-                            <select
-                                multiple
-                                className="mt-1 block w-full rounded border-gray-300"
-                                value={form.data.tag_ids.map(String)}
-                                onChange={onTagsChange}
-                            >
-                                {tagsList.map((t) => (
-                                    <option key={t.id} value={t.id}>
-                                        {t.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="mt-1">
+                                <Select
+                                    options={tagOptions}
+                                    value={selectedTags}
+                                    onChange={(options) =>
+                                        form.setData(
+                                            "tag_ids",
+                                            options ? options.map((option) => option.value) : []
+                                        )
+                                    }
+                                    isMulti
+                                    closeMenuOnSelect={false}
+                                    placeholder="Busque e selecione as tags"
+                                    noOptionsMessage={() => "Nenhuma tag encontrada"}
+                                />
+                            </div>
                             {form.errors.tag_ids ? <div className="mt-1 text-sm text-red-600">{form.errors.tag_ids}</div> : null}
                         </div>
 
@@ -295,7 +318,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                                 <div className="text-xs text-gray-500">Curtidas e comentários</div>
                             </div>
 
-                            <div className="px-4 py-4 space-y-6">
+                            <div className="space-y-6 px-4 py-4">
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-2 text-sm">
                                         <i className={likedByMe ? "fa-solid fa-heart" : "fa-regular fa-heart"} />
@@ -307,8 +330,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                                         type="button"
                                         onClick={toggleLike}
                                         disabled={likeBusy}
-                                        className={`inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium border hover:bg-gray-50 disabled:opacity-50 ${likedByMe ? "border-emerald-200 bg-emerald-50" : ""
-                                            }`}
+                                        className={`inline-flex items-center gap-2 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 ${likedByMe ? "border-emerald-200 bg-emerald-50" : ""}`}
                                     >
                                         <i className={likedByMe ? "fa-solid fa-thumbs-up" : "fa-regular fa-thumbs-up"} />
                                         {likedByMe ? "Curtido" : "Curtir"}
@@ -331,7 +353,7 @@ export default function Show({ article, categories, tagsList, comments = [], can
                                                             <div className="text-sm font-semibold">{c.user?.name ?? "—"}</div>
                                                             <div className="text-xs text-gray-500">{formatCommentDate(c.created_at)}</div>
                                                         </div>
-                                                        <div className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{c.body}</div>
+                                                        <div className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{c.body}</div>
                                                     </div>
 
                                                     {c.can_delete ? (

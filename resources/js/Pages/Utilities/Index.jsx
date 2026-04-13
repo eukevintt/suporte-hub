@@ -4,8 +4,8 @@ import { Head, Link } from "@inertiajs/react";
 export default function Index() {
     const utilities = [
         {
-            title: "Busca de Usuários",
-            description: "Encontre em qual servidor o cliente está",
+            title: "Busca de Hospedagem Compartilhada",
+            description: "Encontre em qual servidor CWP ou CPanel o cliente está",
             href: "/utilities/user-lookup",
         },
         {
