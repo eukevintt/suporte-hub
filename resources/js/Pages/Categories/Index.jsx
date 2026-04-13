@@ -171,7 +171,7 @@ export default function Index({ auth, categories }) {
 
                                     {(!categories || categories.length === 0) && (
                                         <tr>
-                                            <td colSpan="3" className="py-6 text-gray-600 dark:text-gray-300">
+                                            <td colSpan="3" className="py-6 text-gray-600">
                                                 Nenhuma categoria cadastrada.
                                             </td>
                                         </tr>

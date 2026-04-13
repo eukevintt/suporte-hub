@@ -62,6 +62,20 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/links/create', [LinkController::class, 'create'])->name('links.create');
             Route::post('/links', [LinkController::class, 'store'])->name('links.store');
+
+            Route::get('/links/manage', [LinkController::class, 'manage'])->name('links.manage');
+
+            Route::get('/links/{link}/edit', [LinkController::class, 'edit'])->name('links.edit');
+            Route::put('/links/{link}', [LinkController::class, 'update'])->name('links.update');
+
+            Route::delete('/links/{link}', [LinkController::class, 'destroy'])->name('links.destroy');
+
+            Route::get('/links/types/manage', [LinkController::class, 'manageTypes'])->name('links.types.manage');
+
+            Route::get('/links/types/{linkType}/edit', [LinkController::class, 'editType'])->name('links.types.edit');
+            Route::put('/links/types/{linkType}', [LinkController::class, 'updateType'])->name('links.types.update');
+
+            Route::delete('/links/types/{linkType}', [LinkController::class, 'destroyType'])->name('links.types.destroy');
         });
 
         Route::get('/links', [LinkController::class, 'index'])->name('links.index');
