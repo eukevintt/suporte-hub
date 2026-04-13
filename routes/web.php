@@ -15,6 +15,7 @@ use App\Http\Controllers\ArticleCommentController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserLookupController;
+use App\Http\Controllers\ServerMigrationController;
 
 Route::redirect('/', '/login');
 
@@ -93,6 +94,14 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/u/{user}', [UserProfileController::class, 'show'])->name('profiles.show');
         Route::get('/u/{user}/articles', [UserProfileController::class, 'articles'])->name('profiles.articles');
+
+        Route::get('/utilities/migrations', [ServerMigrationController::class, 'index'])->name('utilities.migrations.index');
+        Route::get('/utilities/migrations/create', [ServerMigrationController::class, 'create'])->name('utilities.migrations.create');
+        Route::post('/utilities/migrations', [ServerMigrationController::class, 'store'])->name('utilities.migrations.store');
+        Route::get('/utilities/migrations/{migration}/edit', [ServerMigrationController::class, 'edit'])->name('utilities.migrations.edit');
+        Route::put('/utilities/migrations/{migration}', [ServerMigrationController::class, 'update'])->name('utilities.migrations.update');
+        Route::put('/utilities/migrations/{migration}/status', [ServerMigrationController::class, 'updateStatus'])->name('utilities.migrations.status');
+        Route::delete('/utilities/migrations/{migration}', [ServerMigrationController::class, 'destroy'])->name('utilities.migrations.destroy');
 
     });
 });

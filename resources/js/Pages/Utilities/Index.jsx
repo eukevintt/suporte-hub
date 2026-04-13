@@ -8,6 +8,11 @@ export default function Index() {
             description: "Encontre em qual servidor o cliente está",
             href: "/utilities/user-lookup",
         },
+        {
+            title: "Migrações",
+            description: "Controle e acompanhamento de migrações",
+            href: "/utilities/migrations",
+        },
     ];
 
     return (
@@ -22,13 +27,10 @@ export default function Index() {
                         <Link
                             key={item.title}
                             href={item.href}
-                            className="block rounded-xl border border-gray-200 p-4 hover:bg-gray-50 transition"
+                            className="block rounded-xl border border-gray-200 p-4 transition hover:bg-gray-50"
                         >
-                            <div className="text-lg font-medium">
-                                {item.title}
-                            </div>
-
-                            <div className="text-sm text-gray-500 mt-1">
+                            <div className="text-lg font-medium">{item.title}</div>
+                            <div className="mt-1 text-sm text-gray-500">
                                 {item.description}
                             </div>
                         </Link>
