@@ -11,7 +11,8 @@ export default function Index({ users, roles }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
-        role: roles?.[0] ?? "n1",
+        role: roles?.[0]?.value ?? "n1",
+        shift: "comercial",
         can_review_articles: false,
     });
 
@@ -20,6 +21,13 @@ export default function Index({ users, roles }) {
         post(route("users.store"), {
             onSuccess: () => reset(),
         });
+    };
+
+    const shiftLabels = {
+        comercial: "Comercial",
+        manha: "Manhã",
+        tarde: "Tarde",
+        noturno: "Noturno",
     };
 
     const canCopy = useMemo(() => !!generated?.password, [generated]);
@@ -100,7 +108,7 @@ export default function Index({ users, roles }) {
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium">Role</label>
+                            <label className="text-sm font-medium">Cargo</label>
                             <select
                                 value={data.role}
                                 onChange={(e) => setData("role", e.target.value)}
@@ -113,6 +121,21 @@ export default function Index({ users, roles }) {
                                 ))}
                             </select>
                             {errors.role && <div className="mt-1 text-sm text-red-600">{errors.role}</div>}
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-medium">Turno</label>
+                            <select
+                                value={data.shift}
+                                onChange={(e) => setData("shift", e.target.value)}
+                                className="mt-1 w-full rounded-md border px-3 py-2"
+                            >
+                                <option value="comercial">Comercial</option>
+                                <option value="manha">Manhã</option>
+                                <option value="tarde">Tarde</option>
+                                <option value="noturno">Noturno</option>
+                            </select>
+                            {errors.shift && <div className="mt-1 text-sm text-red-600">{errors.shift}</div>}
                         </div>
 
                         <div className="md:col-span-3">
@@ -153,6 +176,7 @@ export default function Index({ users, roles }) {
                                     <th className="px-5 py-3">Nome</th>
                                     <th className="px-5 py-3">E-mail</th>
                                     <th className="px-5 py-3">Cargo</th>
+                                    <th className="px-5 py-3">Turno</th>
                                     <th className="px-5 py-3">Pode Revisar?</th>
                                     <th className="px-5 py-3"></th>
                                 </tr>
@@ -163,6 +187,7 @@ export default function Index({ users, roles }) {
                                         <td className="px-5 py-3">{u.name}</td>
                                         <td className="px-5 py-3">{u.email}</td>
                                         <td className="px-5 py-3">{u.role_label}</td>
+                                        <td className="px-5 py-3">{shiftLabels[u.shift] ?? "-"}</td>
                                         <td className="px-5 py-3">
                                             {hasReview(u) ? (
                                                 <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium">

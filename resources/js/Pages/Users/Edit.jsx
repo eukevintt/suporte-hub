@@ -23,10 +23,18 @@ export default function Edit({ user, roles }) {
         name: user.name,
         email: user.email,
         role: user.role,
+        shift: user.shift ?? "comercial",
         must_change_password: user.must_change_password,
         can_review_articles: (user.permissions ?? []).includes("review-articles"),
         password: "",
     });
+
+    const shiftOptions = [
+        { value: "comercial", label: "Comercial" },
+        { value: "manha", label: "Manhã" },
+        { value: "tarde", label: "Tarde" },
+        { value: "noturno", label: "Noturno" },
+    ];
 
     const submit = (e) => {
         e.preventDefault();
@@ -77,6 +85,22 @@ export default function Edit({ user, roles }) {
                                 </option>
                             ))}
                         </select>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium">Turno</label>
+                        <select
+                            value={data.shift}
+                            onChange={(e) => setData("shift", e.target.value)}
+                            className="mt-1 w-full rounded-md border px-3 py-2"
+                        >
+                            {shiftOptions.map((shift) => (
+                                <option key={shift.value} value={shift.value}>
+                                    {shift.label}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.shift && <div className="mt-1 text-sm text-red-600">{errors.shift}</div>}
                     </div>
 
                     <div className="flex items-center gap-2">

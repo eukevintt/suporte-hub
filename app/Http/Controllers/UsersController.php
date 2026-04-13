@@ -17,7 +17,7 @@ final class UsersController extends Controller
         $actorRole = $actor->role;
 
         $usersQuery = User::query()
-            ->select(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'created_at', 'username'])
+            ->select(['id', 'name', 'email', 'role', 'shift', 'permissions', 'must_change_password', 'created_at', 'username'])
             ->orderBy('id', 'desc');
 
         if ($actorRole === 'admin') {
@@ -38,6 +38,7 @@ final class UsersController extends Controller
                         'must_change_password' => $user->must_change_password,
                         'created_at' => $user->created_at,
                         'username' => $user->username,
+                        'shift' => $user->shift,
                     ];
                 })
                 ->withQueryString(),
@@ -59,6 +60,7 @@ final class UsersController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', Rule::in($allowedRoles)],
+            'shift' => ['required', Rule::in(['comercial', 'manha', 'tarde', 'noturno'])],
             'can_review_articles' => ['sometimes', 'boolean'],
         ]);
 
@@ -79,6 +81,7 @@ final class UsersController extends Controller
             'permissions' => $permissions,
             'password' => Hash::make($plainPassword),
             'must_change_password' => true,
+            'shift' => $data['shift'],
         ]);
 
         return redirect()
@@ -98,7 +101,7 @@ final class UsersController extends Controller
         }
 
         return Inertia::render('Users/Edit', [
-            'user' => $user->only(['id', 'name', 'email', 'role', 'permissions', 'must_change_password', 'username']),
+            'user' => $user->only(['id', 'name', 'email', 'role', 'shift', 'permissions', 'must_change_password', 'username']),
             'roles' => collect($this->allowedRolesFor($actor->role))
                 ->map(fn ($role) => [
                     'value' => $role,
@@ -125,6 +128,7 @@ final class UsersController extends Controller
             'must_change_password' => ['required', 'boolean'],
             'can_review_articles' => ['sometimes', 'boolean'],
             'password' => ['nullable', 'string', 'min:8'],
+            'shift' => ['required', Rule::in(['comercial', 'manha', 'tarde', 'noturno'])],
         ]);
 
         $payload = [
@@ -132,6 +136,7 @@ final class UsersController extends Controller
             'email' => $data['email'],
             'role' => $data['role'],
             'must_change_password' => $data['must_change_password'],
+            'shift' => $data['shift'],
         ];
 
         $permissions = $user->permissions ?? [];
@@ -203,8 +208,8 @@ final class UsersController extends Controller
 
     private function allowedRolesFor(string $actorRole): array
     {
-        return $actorRole === 'superadmin'
-            ? ['admin', 'n1', 'n2', 'n3', 'infra']
+        return $actorRole === 'superadmin' || $actorRole === 'admin'
+            ? ['n1', 'n2', 'n3', 'infra', 'admin']
             : ['n1', 'n2', 'n3', 'infra'];
     }
 

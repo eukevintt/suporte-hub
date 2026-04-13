@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/storage/app/private/*.csv
+/storage/app/private/*.json
+resources/js/Pages/Utilities/UserLookup.jsx
+app/Http/Controllers/UserLookupController.php

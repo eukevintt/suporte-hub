@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'shift',
         'permissions',
         'must_change_password',
     ];
