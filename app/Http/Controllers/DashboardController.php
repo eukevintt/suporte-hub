@@ -28,6 +28,22 @@ class DashboardController extends Controller
                 'author_id',
             ]);
 
+        $commonArticles = Article::query()
+            ->where('status', 'published')
+            ->whereHas('tags', function ($q) {
+                $q->where('slug', 'comum');
+            })
+            ->with(['author:id,name', 'category:id,name'])
+            ->latest()
+            ->limit(6)
+            ->get([
+                'id',
+                'title',
+                'slug',
+                'author_id',
+                'category_id',
+            ]);
+
         $highlightMigrations = ServerMigration::query()
             ->whereDate('migration_date', $now->toDateString())
             ->whereIn('status', ServerMigration::ACTIVE_STATUSES)
@@ -74,6 +90,7 @@ class DashboardController extends Controller
             'highlightMigrations' => $highlightMigrations,
             'todayMigrations' => $todayMigrations,
             'upcomingMigrations' => $upcomingMigrations,
+            'commonArticles' => $commonArticles,
         ]);
     }
 

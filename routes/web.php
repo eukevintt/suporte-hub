@@ -36,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
             return Inertia::render('Utilities/Index');
         })->name('utilities.index');
 
-        Route::get('/utilities/user-lookup', [UserLookupController::class, 'index'])->name('utilities.user-lookup');
+        Route::get('/utilities/clientes-hospedagem-compartilhada', [UserLookupController::class, 'index'])->name('utilities.user-lookup');
 
         Route::get('/articles', [ArticlesController::class, 'index'])->name('articles.index');
         Route::get('/articles/all', [ArticlesController::class, 'all'])->name('articles.all');

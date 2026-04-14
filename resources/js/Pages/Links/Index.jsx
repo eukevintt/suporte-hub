@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage, Link, Head } from "@inertiajs/react";
 
 function LinkCarousel({ links }) {
     const scrollRef = useRef(null);
@@ -107,6 +107,7 @@ export default function Index() {
 
     return (
         <AppLayout title="Links">
+            <Head title="Links Utéis" />
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Links úteis</h1>

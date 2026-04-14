@@ -44,6 +44,7 @@ class UserProfileController extends Controller
                 'username' => $user->username,
                 'name' => $user->name,
                 'role' => $user->role,
+                'avatar_url' => $user->avatar_url,
             ],
             'viewer' => [
                 'id' => request()->user()->id,
@@ -92,6 +93,7 @@ class UserProfileController extends Controller
                 'name' => $user->name,
                 'username' => $user->username,
                 'role' => $user->role,
+                'avatar_url' => $user->avatar_url,
             ],
             'articles' => $articles,
         ]);

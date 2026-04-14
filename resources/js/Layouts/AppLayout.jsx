@@ -12,10 +12,22 @@ const nav = [
 ];
 
 export default function AppLayout({ title, children, query }) {
-
     const { props } = usePage();
     const user = props?.auth?.user;
     const flash = props?.flash ?? {};
+
+    const navItems = useMemo(() => {
+        const items = [...nav];
+
+        if (user?.username) {
+            items.splice(6, 0, {
+                label: "Perfil",
+                href: route("profiles.show", user.username),
+            });
+        }
+
+        return items;
+    }, [user?.username]);
 
     const isAdmin = useMemo(() => {
         const role = String(user?.role ?? "").toLowerCase();
@@ -23,11 +35,11 @@ export default function AppLayout({ title, children, query }) {
     }, [user?.role]);
 
     const visibleNav = useMemo(() => {
-        return nav.filter((item) => {
+        return navItems.filter((item) => {
             if (!item.adminOnly) return true;
             return isAdmin;
         });
-    }, [isAdmin]);
+    }, [navItems, isAdmin]);
 
     const minCharsForSuggestions = 1;
 
@@ -35,6 +47,7 @@ export default function AppLayout({ title, children, query }) {
     const [suggestions, setSuggestions] = useState([]);
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
     const controllerRef = useRef(null);
     const blurTimeoutRef = useRef(null);
@@ -111,12 +124,26 @@ export default function AppLayout({ title, children, query }) {
         blurTimeoutRef.current = setTimeout(() => setOpen(false), 150);
     };
 
+    const brand = props?.brand ?? {};
+    const appName = brand?.app_name || "SuporteHub";
+    const logoUrl = brand?.logo_url || null;
+
     return (
         <div className="min-h-screen bg-white text-gray-900">
-            <div className="flex min-h-screen">
-                <aside className="h-screen hidden md:flex md:w-64 md:flex-col border-r border-gray-200 bg-white">
-                    <div className="h-16 flex items-center px-5 border-b border-gray-200">
-                        <span className="text-lg font-semibold">SuporteHub</span>
+            <div className="flex h-screen">
+                <aside className="hidden h-screen md:flex md:w-64 md:flex-col border-r border-gray-200 bg-white shrink-0">
+                    <div className="h-16 flex items-center justify-center px-5 border-b border-gray-200">
+                        <Link href="/dashboard" className="flex items-center h-full">
+                            {logoUrl ? (
+                                <img
+                                    src={logoUrl}
+                                    alt={appName}
+                                    className="max-h-10 w-auto object-contain"
+                                />
+                            ) : (
+                                <span className="text-lg font-semibold">{appName}</span>
+                            )}
+                        </Link>
                     </div>
 
                     <nav className="flex-1 p-3 space-y-1">
@@ -138,14 +165,38 @@ export default function AppLayout({ title, children, query }) {
 
                     <div className="p-4 border-t border-gray-200">
                         <div className="text-xs text-gray-500">Logado como</div>
-                        <div className="text-sm font-medium truncate">{user?.name ?? "—"}</div>
+                        <Link href={route("profiles.show", user?.username)}
+                            className="text-sm font-medium truncate text-gray-900 hover:underline"
+                        >
+                            {user?.name ?? "—"}
+                        </Link>
                     </div>
                 </aside>
 
-                <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+                <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
                     <header className="h-16 border-b border-gray-200 bg-white">
                         <div className="h-full flex items-center justify-between px-4 md:px-6 gap-4">
-                            <div className="md:hidden text-base font-semibold">SuporteHub</div>
+                            <div className="flex items-center gap-3 md:hidden">
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileNavOpen((prev) => !prev)}
+                                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200"
+                                    aria-label="Abrir menu"
+                                >
+                                    <i className="fa-solid fa-bars" />
+                                </button>
+                                <Link href="/dashboard" className="flex items-center h-full">
+                                    {logoUrl ? (
+                                        <img
+                                            src={logoUrl}
+                                            alt={appName}
+                                            className="max-h-8 w-auto object-contain"
+                                        />
+                                    ) : (
+                                        <div className="text-base font-semibold">{appName}</div>
+                                    )}
+                                </Link>
+                            </div>
 
                             <div className="flex-1 max-w-xl hidden sm:block relative">
                                 <form onSubmit={submit}>
@@ -222,7 +273,11 @@ export default function AppLayout({ title, children, query }) {
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <div className="hidden sm:block text-sm text-gray-700 truncate max-w-[220px]">{user?.email ?? ""}</div>
+                                <Link href={route("profiles.show", user?.username)}
+                                    className="hidden sm:block text-sm text-gray-700 truncate max-w-[220px] hover:underline"
+                                >
+                                    {user?.email ?? ""}
+                                </Link>
                                 <button
                                     type="button"
                                     onClick={logout}
@@ -233,6 +288,28 @@ export default function AppLayout({ title, children, query }) {
                             </div>
                         </div>
                     </header>
+
+                    {mobileNavOpen && (
+                        <div className="border-b border-gray-200 bg-white px-4 py-3 md:hidden">
+                            <nav className="space-y-1">
+                                {visibleNav.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setMobileNavOpen(false)}
+                                        className={[
+                                            "block rounded-lg px-3 py-2 text-sm font-medium",
+                                            isActive(item.href)
+                                                ? "bg-gray-100 text-gray-900"
+                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                                        ].join(" ")}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
+                    )}
 
                     {flash.error && (
                         <div className="px-4 md:px-6 mt-4">
@@ -250,9 +327,9 @@ export default function AppLayout({ title, children, query }) {
                         </div>
                     )}
 
-
-                    <div className=" p-4 md:p-6">{children}</div>
-
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                        {children}
+                    </main>
                 </div>
             </div>
         </div>

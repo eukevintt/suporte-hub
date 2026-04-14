@@ -6,7 +6,7 @@ export default function Index() {
         {
             title: "Busca de Hospedagem Compartilhada",
             description: "Encontre em qual servidor CWP ou CPanel o cliente está",
-            href: "/utilities/user-lookup",
+            href: "/utilities/clientes-hospedagem-compartilhada",
         },
         {
             title: "Migrações",

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -16,6 +17,7 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        'avatar_path',
         'password',
         'role',
         'shift',
@@ -26,6 +28,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $appends = [
+        'avatar_url',
     ];
 
     protected $casts = [
@@ -53,5 +59,14 @@ class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'username';
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (!$this->avatar_path) {
+            return null;
+        }
+
+        return Storage::url($this->avatar_path);
     }
 }

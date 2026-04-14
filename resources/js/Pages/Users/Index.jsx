@@ -56,7 +56,7 @@ export default function Index({ users, roles }) {
 
             <div className="py-8">
                 {generated && (
-                    <div className="rounded-lg border border-white-200 bg-white-50 p-4">
+                    <div className="rounded-lg border border-white-200 bg-white-50 p-4 mb-6 bg-emerald-50">
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <div className="font-medium">Senha gerada (exibida uma única vez)</div>

@@ -49,8 +49,16 @@ export default function Show({ user, viewer, stats, articles = [] }) {
 
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xl font-semibold">
-                        {initials || "—"}
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200 text-xl font-semibold">
+                        {user?.avatar_url ? (
+                            <img
+                                src={user.avatar_url}
+                                alt={`Avatar de ${user.name}`}
+                                className="h-full w-full object-cover"
+                            />
+                        ) : (
+                            initials || "—"
+                        )}
                     </div>
 
                     <div>

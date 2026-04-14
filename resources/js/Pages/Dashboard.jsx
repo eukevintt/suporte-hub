@@ -1,5 +1,5 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, Head } from "@inertiajs/react";
 
 function statusBadgeClass(status) {
     const map = {
@@ -95,9 +95,11 @@ export default function Dashboard({
     highlightMigrations = [],
     todayMigrations = [],
     upcomingMigrations = [],
+    commonArticles = [],
 }) {
     return (
         <AppLayout title="Dashboard">
+            <Head title="Dashboard" />
             <div className="space-y-6">
                 <div>
                     <h2 className="text-lg font-semibold">Dashboard</h2>
@@ -206,6 +208,38 @@ export default function Dashboard({
                         </div>
                     </section>
                 </div>
+
+                <section className="rounded-lg border bg-white">
+                    <div className="border-b px-4 py-3">
+                        <div className="text-sm font-semibold">Chamados comuns</div>
+                        <div className="text-xs text-gray-500">
+                            Problemas frequentes e soluções rápidas
+                        </div>
+                    </div>
+
+                    <div className="divide-y">
+                        {commonArticles.map((a) => (
+                            <div key={a.id} className="px-4 py-3">
+                                <Link
+                                    href={route("articles.show", a.slug)}
+                                    className="font-medium hover:underline"
+                                >
+                                    {a.title}
+                                </Link>
+
+                                <div className="text-xs text-gray-500">
+                                    {a.category?.name ?? "—"} • {a.author?.name ?? "—"}
+                                </div>
+                            </div>
+                        ))}
+
+                        {!commonArticles.length ? (
+                            <div className="px-4 py-6 text-center text-sm text-gray-500">
+                                Nenhum chamado comum encontrado.
+                            </div>
+                        ) : null}
+                    </div>
+                </section>
 
                 <section className="rounded-lg border bg-white">
                     <div className="border-b px-4 py-3">
