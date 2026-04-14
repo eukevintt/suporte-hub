@@ -44,8 +44,8 @@ export default function Show({ user, viewer, stats, articles = [] }) {
     const roleLabel = user?.role ? roleLabelMap[user.role] ?? user.role : null;
 
     return (
-        <AppLayout title={`Perfil — ${user.name}`}>
-            <Head title={`Perfil — ${user.name}`} />
+        <AppLayout title={`Perfil - ${user.name}`}>
+            <Head title={`Perfil - ${user.name}`} />
 
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
