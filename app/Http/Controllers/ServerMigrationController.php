@@ -112,10 +112,10 @@ class ServerMigrationController extends Controller
         return back()->with('success', 'Status da migração atualizado com sucesso.');
     }
 
-    public function destroy(ServerMigration $migration): RedirectResponse
+    public function destroy(Request $request, ServerMigration $migration): RedirectResponse
     {
-        if ($serverMigration->type === 'infra') {
-            if (!in_array($request->user()->role, ['infra', 'admin', 'superadmin'])) {
+        if ($migration->type === 'infra') {
+            if (! in_array($request->user()->role, ['infra', 'admin', 'superadmin'])) {
                 abort(403);
             }
         }
@@ -147,8 +147,20 @@ class ServerMigrationController extends Controller
             'created_at' => $migration->created_at?->format('d/m/Y H:i'),
             'updated_at' => $migration->updated_at?->format('d/m/Y H:i'),
             'type' => $migration->type,
-            'infra_start_date' => $migration->infra_start_date?->timezone('America/Sao_Paulo')->format('d/m/Y H:i'),
-            'infra_end_forecast' => $migration->infra_end_forecast,
+            'infra_start_date' => $migration->infra_start_date?->format('Y-m-d'),
+            'infra_start_date_br' => $migration->infra_start_date?->format('d/m/Y'),
+
+            'infra_start_time' => $migration->infra_start_time
+                ? substr((string) $migration->infra_start_time, 0, 5)
+                : null,
+
+            'infra_end_time' => $migration->infra_end_time
+                ? substr((string) $migration->infra_end_time, 0, 5)
+                : null,
+
+            'infra_end_forecast' => $migration->infra_end_forecast?->format('Y-m-d'),
+            'infra_end_forecast_br' => $migration->infra_end_forecast?->format('d/m/Y'),
+
             'infra_finished_at' => $migration->infra_finished_at,
             'total_containers' => $migration->total_containers,
             'remaining_containers' => $migration->remaining_containers,

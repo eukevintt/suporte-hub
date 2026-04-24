@@ -28,6 +28,8 @@ class ServerMigration extends Model
         'infra_finished_at',
         'total_containers',
         'remaining_containers',
+        'infra_start_time',
+        'infra_end_time',
     ];
 
     protected $casts = [

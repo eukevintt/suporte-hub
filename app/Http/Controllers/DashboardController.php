@@ -127,9 +127,14 @@ class DashboardController extends Controller
     private function migrationDateTime(ServerMigration $migration): ?Carbon
     {
         if ($migration->type === 'infra') {
-            return $migration->infra_start_date
-                ? $migration->infra_start_date->timezone('America/Sao_Paulo')
-                : null;
+            if (!$migration->infra_start_date) {
+                return null;
+            }
+
+            return Carbon::parse(
+                $migration->infra_start_date->format('Y-m-d') . ' ' . ($migration->infra_start_time ?? '00:00'),
+                'America/Sao_Paulo'
+            );
         }
 
         if (!$migration->migration_date || !$migration->migration_time) {
@@ -148,20 +153,36 @@ class DashboardController extends Controller
             'id' => $migration->id,
             'client_email' => $migration->client_email,
             'node_id' => $migration->node_id,
+
             'migration_date' => $migration->migration_date?->format('Y-m-d'),
             'migration_date_br' => $migration->migration_date?->format('d/m/Y'),
             'migration_time' => substr((string) $migration->migration_time, 0, 5),
+
             'source_server' => $migration->source_server,
             'destination_server' => $migration->destination_server,
+
             'status' => $migration->status,
             'status_label' => $migration->status_label,
+
             'notes' => $migration->notes,
             'has_start_stop' => $migration->has_start_stop,
+
             'type' => $migration->type,
-            'infra_start_date' => $migration->infra_start_date,
-            'infra_start_date_br' => $migration->infra_start_date?->timezone('America/Sao_Paulo')->format('d/m/Y H:i'),
-            'infra_end_forecast' => $migration->infra_end_forecast,
+            'infra_start_date' => $migration->infra_start_date?->format('Y-m-d'),
+            'infra_start_date_br' => $migration->infra_start_date?->format('d/m/Y'),
+            'infra_start_time' => $migration->infra_start_time
+                ? substr((string) $migration->infra_start_time, 0, 5)
+                : null,
+
+            'infra_end_time' => $migration->infra_end_time
+                ? substr((string) $migration->infra_end_time, 0, 5)
+                : null,
+
+            'infra_end_forecast' => $migration->infra_end_forecast?->format('Y-m-d'),
+            'infra_end_forecast_br' => $migration->infra_end_forecast?->format('d/m/Y'),
+
             'infra_finished_at' => $migration->infra_finished_at,
+
             'total_containers' => $migration->total_containers,
             'remaining_containers' => $migration->remaining_containers,
         ];

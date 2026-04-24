@@ -13,6 +13,14 @@ function statusBadgeClass(status) {
     return map[status] ?? "bg-gray-100 text-gray-700";
 }
 
+function infraDateTime(item) {
+    const date = item.infra_start_date_br ?? item.infra_start_date ?? "—";
+    const start = item.infra_start_time ? ` às ${item.infra_start_time}` : "";
+    const end = item.infra_end_time ? ` até ${item.infra_end_time}` : "";
+
+    return `${date}${start}${end}`;
+}
+
 function migrationTitle(item) {
     return item.type === "infra"
         ? "Migração de Infraestrutura"
@@ -21,7 +29,7 @@ function migrationTitle(item) {
 
 function migrationSubtitle(item) {
     if (item.type === "infra") {
-        return `${item.source_server} → ${item.destination_server}`;
+        return `${infraDateTime(item)} • ${item.source_server} → ${item.destination_server}`;
     }
 
     return `Node ID: ${item.node_id} • ${item.migration_time}`;
@@ -78,8 +86,8 @@ function HighlightMigrationCard({ item }) {
                                     {item.destination_server}
                                 </div>
                                 <div>
-                                    <span className="font-semibold">Início:</span>{" "}
-                                    {item.infra_start_date_br ?? item.infra_start_date}
+                                    <span className="font-semibold">Janela:</span>{" "}
+                                    {infraDateTime(item)}
                                 </div>
                                 <div>
                                     <span className="font-semibold">Containers:</span>{" "}
@@ -207,7 +215,7 @@ export default function Dashboard({
 
                                         <div className="text-xs text-gray-500">
                                             {item.type === "infra"
-                                                ? `${item.infra_start_date_br ?? item.infra_start_date} • ${migrationSubtitle(item)}`
+                                                ? migrationSubtitle(item)
                                                 : `${item.migration_date_br} às ${item.migration_time}`}
                                         </div>
                                     </div>
@@ -253,9 +261,7 @@ export default function Dashboard({
                                         </div>
 
                                         <div className="text-xs text-gray-500">
-                                            {item.type === "infra"
-                                                ? migrationSubtitle(item)
-                                                : `Node ID: ${item.node_id} • ${item.migration_time}`}
+                                            {migrationSubtitle(item)}
                                         </div>
                                     </div>
 

@@ -5,8 +5,10 @@ export default function InfraForm({ migration = null, mode = "create" }) {
     const { data, setData, post, put, processing, errors } = useForm({
         source_server: migration?.source_server ?? "",
         destination_server: migration?.destination_server ?? "",
-        infra_start_date: migration?.infra_start_date ?? "",
-        infra_end_forecast: migration?.infra_end_forecast ?? "",
+        infra_start_date: migration?.infra_start_date?.slice(0, 10) ?? "",
+        infra_start_time: migration?.infra_start_time?.slice(0, 5) ?? "",
+        infra_end_time: migration?.infra_end_time?.slice(0, 5) ?? "",
+        infra_end_forecast: migration?.infra_end_forecast?.slice(0, 10) ?? "",
         infra_finished_at: migration?.infra_finished_at ?? "",
         total_containers: migration?.total_containers ?? "",
         remaining_containers: migration?.remaining_containers ?? "",
@@ -30,16 +32,19 @@ export default function InfraForm({ migration = null, mode = "create" }) {
     const errorClass = "mt-1 text-sm text-red-600";
 
     return (
-        <AppLayout title="Nova migração infra">
-            <Head title="Nova migração infra" />
+        <AppLayout title={mode === "edit" ? "Editar migração infra" : "Nova migração infra"}>
+            <Head title={mode === "edit" ? "Editar migração infra" : "Nova migração infra"} />
 
             <div className="space-y-6">
                 <div>
                     <h1 className="text-2xl font-semibold">
-                        Nova migração infra
+                        {mode === "edit" ? "Editar migração infra" : "Nova migração infra"}
                     </h1>
+
                     <p className="text-sm text-gray-500">
-                        Cadastro de migração de infraestrutura.
+                        {mode === "edit"
+                            ? "Atualize os dados da migração de infraestrutura."
+                            : "Cadastro de migração de infraestrutura."}
                     </p>
                 </div>
 
@@ -83,11 +88,9 @@ export default function InfraForm({ migration = null, mode = "create" }) {
                         <div>
                             <label className={labelClass}>Data de início</label>
                             <input
-                                type="datetime-local"
+                                type="date"
                                 value={data.infra_start_date}
-                                onChange={(e) =>
-                                    setData("infra_start_date", e.target.value)
-                                }
+                                onChange={(e) => setData("infra_start_date", e.target.value)}
                                 className={inputClass}
                             />
                             {errors.infra_start_date && (
@@ -111,6 +114,32 @@ export default function InfraForm({ migration = null, mode = "create" }) {
                                 <div className={errorClass}>
                                     {errors.infra_end_forecast}
                                 </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Hora início</label>
+                            <input
+                                type="time"
+                                value={data.infra_start_time}
+                                onChange={(e) => setData("infra_start_time", e.target.value)}
+                                className={inputClass}
+                            />
+                            {errors.infra_start_time && (
+                                <div className={errorClass}>{errors.infra_start_time}</div>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Hora término</label>
+                            <input
+                                type="time"
+                                value={data.infra_end_time}
+                                onChange={(e) => setData("infra_end_time", e.target.value)}
+                                className={inputClass}
+                            />
+                            {errors.infra_end_time && (
+                                <div className={errorClass}>{errors.infra_end_time}</div>
                             )}
                         </div>
 

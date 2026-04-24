@@ -98,7 +98,13 @@ function MigrationCard({ item, showQuickActions = false, canManageInfra = false 
 
                                 <div>
                                     <span className="font-medium text-gray-700">Início:</span>{" "}
-                                    {item.infra_start_date}
+                                    {item.infra_start_date_br ?? item.infra_start_date}
+                                    {item.infra_start_time ? ` às ${item.infra_start_time}` : ""}
+                                </div>
+
+                                <div>
+                                    <span className="font-medium text-gray-700">Horário Limite:</span>{" "}
+                                    {item.infra_end_time ?? "—"}
                                 </div>
 
                                 <div>
