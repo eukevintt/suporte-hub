@@ -1,5 +1,5 @@
 import AppLayout from "@/Layouts/AppLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 
 function badgeClass(status) {
     const map = {
@@ -58,13 +58,24 @@ function QuickStatusButtons({ item }) {
     );
 }
 
-function MigrationCard({ item, showQuickActions = false }) {
+function MigrationCard({ item, showQuickActions = false, canManageInfra = false }) {
+    const isInfra = item.type === "infra";
+
     return (
         <div className="rounded-xl border border-gray-200 bg-white p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-semibold">{item.client_email}</h3>
+                        <h3 className="text-base font-semibold">
+                            {isInfra ? "Migração de Infraestrutura" : item.client_email}
+                        </h3>
+
+                        {isInfra && (
+                            <span className="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white">
+                                INFRA
+                            </span>
+                        )}
+
                         <span
                             className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(item.status)}`}
                         >
@@ -73,30 +84,56 @@ function MigrationCard({ item, showQuickActions = false }) {
                     </div>
 
                     <div className="grid gap-2 text-sm text-gray-600 md:grid-cols-2">
-                        <div>
-                            <span className="font-medium text-gray-700">Node ID:</span>{" "}
-                            {item.node_id}
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-700">Data:</span>{" "}
-                            {item.migration_date_br}
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-700">Horário:</span>{" "}
-                            {item.migration_time}
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-700">Start/Stop:</span>{" "}
-                            {item.has_start_stop ? "Sim" : "Não"}
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-700">Autorização:</span>{" "}
-                            {item.authorization_label}
-                        </div>
-                        <div>
-                            <span className="font-medium text-gray-700">Origem → Destino:</span>{" "}
-                            {item.source_server} → {item.destination_server}
-                        </div>
+                        {isInfra ? (
+                            <>
+                                <div>
+                                    <span className="font-medium text-gray-700">Origem:</span>{" "}
+                                    {item.source_server}
+                                </div>
+
+                                <div>
+                                    <span className="font-medium text-gray-700">Destino:</span>{" "}
+                                    {item.destination_server}
+                                </div>
+
+                                <div>
+                                    <span className="font-medium text-gray-700">Início:</span>{" "}
+                                    {item.infra_start_date}
+                                </div>
+
+                                <div>
+                                    <span className="font-medium text-gray-700">Containers:</span>{" "}
+                                    {item.remaining_containers ?? "—"}/{item.total_containers ?? "—"}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div>
+                                    <span className="font-medium text-gray-700">Node ID:</span>{" "}
+                                    {item.node_id}
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Data:</span>{" "}
+                                    {item.migration_date_br}
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Horário:</span>{" "}
+                                    {item.migration_time}
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Start/Stop:</span>{" "}
+                                    {item.has_start_stop ? "Sim" : "Não"}
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Autorização:</span>{" "}
+                                    {item.authorization_label}
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Origem → Destino:</span>{" "}
+                                    {item.source_server} → {item.destination_server}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {item.notes ? (
@@ -111,23 +148,29 @@ function MigrationCard({ item, showQuickActions = false }) {
 
                 <div className="flex items-center gap-3">
                     <Link
-                        href={route("utilities.migrations.edit", item.id)}
+                        href={
+                            isInfra
+                                ? route("utilities.migrations.infra.edit", item.id)
+                                : route("utilities.migrations.edit", item.id)
+                        }
                         className="text-sm font-medium hover:underline"
                     >
                         Editar
                     </Link>
 
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (confirm("Tem certeza que deseja remover esta migração?")) {
-                                router.delete(route("utilities.migrations.destroy", item.id));
-                            }
-                        }}
-                        className="text-sm font-medium text-red-600 hover:underline"
-                    >
-                        Excluir
-                    </button>
+                    {(!isInfra || canManageInfra) && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (confirm("Tem certeza que deseja remover esta migração?")) {
+                                    router.delete(route("utilities.migrations.destroy", item.id));
+                                }
+                            }}
+                            className="text-sm font-medium text-red-600 hover:underline"
+                        >
+                            Excluir
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
@@ -138,6 +181,12 @@ export default function Index({
     activeMigrations = [],
     historyMigrations = [],
 }) {
+    const { auth } = usePage().props;
+    const user = auth?.user;
+
+    const canCreateInfra = ["infra", "admin", "superadmin"].includes(user?.role);
+    const canManageInfra = ["infra", "admin", "superadmin"].includes(user?.role);
+
     return (
         <AppLayout title="Migrações">
             <Head title="Migrações" />
@@ -151,12 +200,24 @@ export default function Index({
                         </p>
                     </div>
 
-                    <Link
-                        href={route("utilities.migrations.create")}
-                        className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-50"
-                    >
-                        Nova migração
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href={route("utilities.migrations.create")}
+                            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+                        >
+                            Nova migração
+                        </Link>
+
+                        {canCreateInfra && (
+                            <Link
+                                href={route("utilities.migrations.infra.create")}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                                style={{ backgroundColor: "#192344" }}
+                            >
+                                Nova migração infra
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <section className="space-y-3">
@@ -174,6 +235,7 @@ export default function Index({
                                     key={item.id}
                                     item={item}
                                     showQuickActions
+                                    canManageInfra={canManageInfra}
                                 />
                             ))
                         ) : (
@@ -195,7 +257,11 @@ export default function Index({
                     <div className="space-y-4">
                         {historyMigrations.length ? (
                             historyMigrations.map((item) => (
-                                <MigrationCard key={item.id} item={item} />
+                                <MigrationCard
+                                    key={item.id}
+                                    item={item}
+                                    canManageInfra={canManageInfra}
+                                />
                             ))
                         ) : (
                             <div className="rounded-xl border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500">

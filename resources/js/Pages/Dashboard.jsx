@@ -13,6 +13,26 @@ function statusBadgeClass(status) {
     return map[status] ?? "bg-gray-100 text-gray-700";
 }
 
+function migrationTitle(item) {
+    return item.type === "infra"
+        ? "Migração de Infraestrutura"
+        : item.client_email;
+}
+
+function migrationSubtitle(item) {
+    if (item.type === "infra") {
+        return `${item.source_server} → ${item.destination_server}`;
+    }
+
+    return `Node ID: ${item.node_id} • ${item.migration_time}`;
+}
+
+function migrationEditRoute(item) {
+    return item.type === "infra"
+        ? route("utilities.migrations.infra.edit", item.id)
+        : route("utilities.migrations.edit", item.id);
+}
+
 function updateMigrationStatus(id, status) {
     router.put(
         route("utilities.migrations.status", id),
@@ -22,14 +42,22 @@ function updateMigrationStatus(id, status) {
 }
 
 function HighlightMigrationCard({ item }) {
+    const isInfra = item.type === "infra";
+
     return (
         <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-6 shadow-sm">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-3">
                         <h3 className="text-xl font-bold text-gray-900">
-                            {item.client_email}
+                            {migrationTitle(item)}
                         </h3>
+
+                        {isInfra && (
+                            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+                                INFRA
+                            </span>
+                        )}
 
                         <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(item.status)}`}
@@ -39,18 +67,45 @@ function HighlightMigrationCard({ item }) {
                     </div>
 
                     <div className="grid gap-2 text-sm text-gray-700 md:grid-cols-2">
-                        <div>
-                            <span className="font-semibold">Node ID:</span> {item.node_id}
-                        </div>
-                        <div>
-                            <span className="font-semibold">Horário:</span> {item.migration_time}
-                        </div>
-                        <div>
-                            <span className="font-semibold">Origem:</span> {item.source_server}
-                        </div>
-                        <div>
-                            <span className="font-semibold">Destino:</span> {item.destination_server}
-                        </div>
+                        {isInfra ? (
+                            <>
+                                <div>
+                                    <span className="font-semibold">Origem:</span>{" "}
+                                    {item.source_server}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Destino:</span>{" "}
+                                    {item.destination_server}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Início:</span>{" "}
+                                    {item.infra_start_date_br ?? item.infra_start_date}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Containers:</span>{" "}
+                                    {item.remaining_containers ?? "—"}/{item.total_containers ?? "—"}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div>
+                                    <span className="font-semibold">Node ID:</span>{" "}
+                                    {item.node_id}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Horário:</span>{" "}
+                                    {item.migration_time}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Origem:</span>{" "}
+                                    {item.source_server}
+                                </div>
+                                <div>
+                                    <span className="font-semibold">Destino:</span>{" "}
+                                    {item.destination_server}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {item.notes ? (
@@ -100,6 +155,7 @@ export default function Dashboard({
     return (
         <AppLayout title="Dashboard">
             <Head title="Dashboard" />
+
             <div className="space-y-6">
                 <div>
                     <h2 className="text-lg font-semibold">Dashboard</h2>
@@ -140,9 +196,19 @@ export default function Dashboard({
                                     className="flex items-center justify-between gap-4 px-4 py-3"
                                 >
                                     <div>
-                                        <div className="font-medium">{item.client_email}</div>
+                                        <div className="flex items-center gap-2 font-medium">
+                                            {migrationTitle(item)}
+                                            {item.type === "infra" && (
+                                                <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white">
+                                                    INFRA
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <div className="text-xs text-gray-500">
-                                            {item.migration_date_br} às {item.migration_time}
+                                            {item.type === "infra"
+                                                ? `${item.infra_start_date_br ?? item.infra_start_date} • ${migrationSubtitle(item)}`
+                                                : `${item.migration_date_br} às ${item.migration_time}`}
                                         </div>
                                     </div>
 
@@ -177,9 +243,19 @@ export default function Dashboard({
                                     className="flex items-center justify-between gap-4 px-4 py-3"
                                 >
                                     <div>
-                                        <div className="font-medium">{item.client_email}</div>
+                                        <div className="flex items-center gap-2 font-medium">
+                                            {migrationTitle(item)}
+                                            {item.type === "infra" && (
+                                                <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white">
+                                                    INFRA
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <div className="text-xs text-gray-500">
-                                            Node ID: {item.node_id} • {item.migration_time}
+                                            {item.type === "infra"
+                                                ? migrationSubtitle(item)
+                                                : `Node ID: ${item.node_id} • ${item.migration_time}`}
                                         </div>
                                     </div>
 
@@ -191,7 +267,7 @@ export default function Dashboard({
                                         </div>
 
                                         <Link
-                                            href={route("utilities.migrations.edit", item.id)}
+                                            href={migrationEditRoute(item)}
                                             className="text-sm font-medium hover:underline"
                                         >
                                             Editar

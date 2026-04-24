@@ -109,6 +109,7 @@ export default function QuillEditor({
             credentials: "same-origin",
             headers: {
                 "X-CSRF-TOKEN": getCsrf(),
+                "X-Requested-With": "XMLHttpRequest",
                 Accept: "application/json",
             },
             body: formData,

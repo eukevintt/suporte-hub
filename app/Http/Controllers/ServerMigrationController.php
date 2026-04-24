@@ -114,6 +114,12 @@ class ServerMigrationController extends Controller
 
     public function destroy(ServerMigration $migration): RedirectResponse
     {
+        if ($serverMigration->type === 'infra') {
+            if (!in_array($request->user()->role, ['infra', 'admin', 'superadmin'])) {
+                abort(403);
+            }
+        }
+
         $migration->delete();
 
         return redirect()
@@ -140,6 +146,12 @@ class ServerMigrationController extends Controller
             'notes' => $migration->notes,
             'created_at' => $migration->created_at?->format('d/m/Y H:i'),
             'updated_at' => $migration->updated_at?->format('d/m/Y H:i'),
+            'type' => $migration->type,
+            'infra_start_date' => $migration->infra_start_date?->timezone('America/Sao_Paulo')->format('d/m/Y H:i'),
+            'infra_end_forecast' => $migration->infra_end_forecast,
+            'infra_finished_at' => $migration->infra_finished_at,
+            'total_containers' => $migration->total_containers,
+            'remaining_containers' => $migration->remaining_containers,
         ];
 
         return $raw ? $base : $base;

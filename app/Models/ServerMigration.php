@@ -22,11 +22,20 @@ class ServerMigration extends Model
         'notes',
         'created_by',
         'updated_by',
+        'type',
+        'infra_start_date',
+        'infra_end_forecast',
+        'infra_finished_at',
+        'total_containers',
+        'remaining_containers',
     ];
 
     protected $casts = [
-        'has_start_stop' => 'boolean',
         'migration_date' => 'date',
+        'has_start_stop' => 'boolean',
+        'infra_start_date' => 'datetime',
+        'infra_end_forecast' => 'datetime',
+        'infra_finished_at' => 'datetime',
     ];
 
     public const AUTHORIZATIONS = [

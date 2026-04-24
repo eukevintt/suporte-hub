@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserLookupController;
 use App\Http\Controllers\ServerMigrationController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\InfraServerMigrationController;
 
 Route::redirect('/', '/login');
 
@@ -123,7 +124,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/utilities/migrations/{migration}/status', [ServerMigrationController::class, 'updateStatus'])->name('utilities.migrations.status');
         Route::delete('/utilities/migrations/{migration}', [ServerMigrationController::class, 'destroy'])->name('utilities.migrations.destroy');
 
-    });
+        Route::get('/utilities/migrations/infra/create', [InfraServerMigrationController::class, 'create'])
+        ->name('utilities.migrations.infra.create');
+        Route::post('/utilities/migrations/infra', [InfraServerMigrationController::class, 'store'])
+            ->name('utilities.migrations.infra.store');
+
+        });
+        Route::get('/utilities/migrations/infra/{serverMigration}/edit', [InfraServerMigrationController::class, 'edit'])
+        ->name('utilities.migrations.infra.edit');
+
+        Route::put('/utilities/migrations/infra/{serverMigration}', [InfraServerMigrationController::class, 'update'])
+            ->name('utilities.migrations.infra.update');
 });
 
 require __DIR__ . '/auth.php';

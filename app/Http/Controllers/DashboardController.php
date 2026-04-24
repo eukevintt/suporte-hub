@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
-        $now = Carbon::now();
+        $now = Carbon::now('America/Sao_Paulo');
 
         $mostLiked = Article::query()
             ->where('status', 'published')
@@ -45,17 +45,30 @@ class DashboardController extends Controller
             ]);
 
         $highlightMigrations = ServerMigration::query()
-            ->whereDate('migration_date', $now->toDateString())
             ->whereIn('status', ServerMigration::ACTIVE_STATUSES)
-            ->orderBy('migration_time')
+            ->where(function ($query) use ($now) {
+                $query->where(function ($q) use ($now) {
+                    $q->where('type', 'default')
+                        ->whereDate('migration_date', $now->toDateString());
+                })->orWhere(function ($q) use ($now) {
+                    $q->where('type', 'infra')
+                        ->whereDate('infra_start_date', $now->toDateString());
+                });
+            })
             ->get()
             ->filter(function (ServerMigration $migration) use ($now) {
+                if ($migration->type === 'infra') {
+                    return $migration->infra_start_date
+                        && $migration->infra_start_date->timezone('America/Sao_Paulo')->lessThanOrEqualTo($now);
+                }
+
                 if (!$migration->migration_time || !$migration->migration_date) {
                     return false;
                 }
 
                 $migrationDateTime = Carbon::parse(
-                    $migration->migration_date->format('Y-m-d') . ' ' . substr((string) $migration->migration_time, 0, 8)
+                    $migration->migration_date->format('Y-m-d') . ' ' . substr((string) $migration->migration_time, 0, 8),
+                    'America/Sao_Paulo'
                 );
 
                 return $migrationDateTime->lessThanOrEqualTo($now);
@@ -64,26 +77,43 @@ class DashboardController extends Controller
             ->values();
 
         $todayMigrations = ServerMigration::query()
-            ->whereDate('migration_date', $now->toDateString())
             ->whereIn('status', ServerMigration::ACTIVE_STATUSES)
-            ->orderBy('migration_time')
+            ->where(function ($query) use ($now) {
+                $query->where(function ($q) use ($now) {
+                    $q->where('type', 'default')
+                        ->whereDate('migration_date', $now->toDateString());
+                })->orWhere(function ($q) use ($now) {
+                    $q->where('type', 'infra')
+                        ->whereDate('infra_start_date', $now->toDateString());
+                });
+            })
             ->get()
-            ->map(fn (ServerMigration $migration) => $this->transformMigration($migration));
+            ->sortBy(fn (ServerMigration $migration) => $this->migrationDateTime($migration)?->timestamp ?? 0)
+            ->map(fn (ServerMigration $migration) => $this->transformMigration($migration))
+            ->values();
 
         $upcomingMigrations = ServerMigration::query()
-            ->where(function ($query) use ($now) {
-                $query->whereDate('migration_date', '>', $now->toDateString())
-                    ->orWhere(function ($subQuery) use ($now) {
-                        $subQuery->whereDate('migration_date', $now->toDateString())
-                            ->whereTime('migration_time', '>', $now->format('H:i:s'));
-                    });
-            })
             ->whereIn('status', ServerMigration::ACTIVE_STATUSES)
-            ->orderBy('migration_date')
-            ->orderBy('migration_time')
-            ->limit(10)
+            ->where(function ($query) use ($now) {
+                $query->where(function ($q) use ($now) {
+                    $q->where('type', 'default')
+                        ->where(function ($subQuery) use ($now) {
+                            $subQuery->whereDate('migration_date', '>', $now->toDateString())
+                                ->orWhere(function ($innerQuery) use ($now) {
+                                    $innerQuery->whereDate('migration_date', $now->toDateString())
+                                        ->whereTime('migration_time', '>', $now->format('H:i:s'));
+                                });
+                        });
+                })->orWhere(function ($q) use ($now) {
+                    $q->where('type', 'infra')
+                        ->where('infra_start_date', '>', $now);
+                });
+            })
             ->get()
-            ->map(fn (ServerMigration $migration) => $this->transformMigration($migration));
+            ->sortBy(fn (ServerMigration $migration) => $this->migrationDateTime($migration)?->timestamp ?? PHP_INT_MAX)
+            ->take(10)
+            ->map(fn (ServerMigration $migration) => $this->transformMigration($migration))
+            ->values();
 
         return Inertia::render('Dashboard', [
             'mostLiked' => $mostLiked,
@@ -92,6 +122,24 @@ class DashboardController extends Controller
             'upcomingMigrations' => $upcomingMigrations,
             'commonArticles' => $commonArticles,
         ]);
+    }
+
+    private function migrationDateTime(ServerMigration $migration): ?Carbon
+    {
+        if ($migration->type === 'infra') {
+            return $migration->infra_start_date
+                ? $migration->infra_start_date->timezone('America/Sao_Paulo')
+                : null;
+        }
+
+        if (!$migration->migration_date || !$migration->migration_time) {
+            return null;
+        }
+
+        return Carbon::parse(
+            $migration->migration_date->format('Y-m-d') . ' ' . substr((string) $migration->migration_time, 0, 8),
+            'America/Sao_Paulo'
+        );
     }
 
     private function transformMigration(ServerMigration $migration): array
@@ -109,6 +157,13 @@ class DashboardController extends Controller
             'status_label' => $migration->status_label,
             'notes' => $migration->notes,
             'has_start_stop' => $migration->has_start_stop,
+            'type' => $migration->type,
+            'infra_start_date' => $migration->infra_start_date,
+            'infra_start_date_br' => $migration->infra_start_date?->timezone('America/Sao_Paulo')->format('d/m/Y H:i'),
+            'infra_end_forecast' => $migration->infra_end_forecast,
+            'infra_finished_at' => $migration->infra_finished_at,
+            'total_containers' => $migration->total_containers,
+            'remaining_containers' => $migration->remaining_containers,
         ];
     }
 }
